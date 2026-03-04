@@ -1,0 +1,6 @@
+ORIGINAL NOTE
+AI Safeguards: Franco R is tasked with building an AI confidence indicator and a recheck system to systematically validate AI outputs against hallucinations in areas of legal risk.
+
+INTERPRETATIONS
+1. Source Enforcement through secondary AI prompt (Sub Workflow)
+2. Raw Confidence Score triggering human in the loop (This Workflow will incur alot of interaction events)
