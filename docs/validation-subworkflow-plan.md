@@ -117,7 +117,7 @@ These are passed by the parent workflow via the Execute Sub-Workflow node:
 | `aiPromptUsed` | NO | The prompt template used (helps the validator understand expectations) |
 | `domainContext` | NO | Domain hint, e.g., "disability law", "call center evaluation" |
 | `strictnessThreshold` | NO | Integer 0–100 (default: 80). Higher = stricter = more outputs flagged |
-| `notifyEmail` | NO | Email address for human review alerts |
+| `notifyEmail` | YES | Email address for human review alerts (mandatory — every workflow must specify a recipient) |
 | `customValidationInstructions` | NO | Free-form validation criteria for CUSTOM tasks or to supplement built-in checks |
 
 ### 3.3 Return Payload
@@ -345,9 +345,9 @@ Webhook → Gemini AI Agent → Execute Sub-Workflow → Respond to Webhook + Gm
 
 ---
 
-## 11. Open Questions
+## 11. Resolved Decisions
 
-- [ ] Which Google Sheet should the audit log write to? (New sheet or existing?)
-- [ ] Who should receive human review notification emails? (Franco only? Team distribution?)
-- [ ] Should the audit log include the full AI output text, or just the metadata? (Storage vs. completeness trade-off)
-- [ ] Do we need separate sub-workflow instances per environment (dev/staging/prod), or one shared instance?
+- **Audit log location**: A new, dedicated Google Sheet ("AI Validation Audit Log") — separate from operational workflow sheets. All workflows log to the same sheet for a unified compliance view.
+- **Notification email**: `notifyEmail` is **mandatory** (not optional). Every parent workflow must explicitly specify who receives review alerts.
+- **Audit log content**: Metadata only in the sheet (scores, counts, reasoning summary). Full AI output is included in the notification email when review is flagged. For passed outputs, the n8n execution log serves as the detailed record.
+- **Environment separation**: Not needed for now — one shared sub-workflow instance used across all workflows going forward.
