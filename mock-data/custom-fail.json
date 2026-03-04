@@ -1,0 +1,15 @@
+[
+  {
+    "json": {
+      "workflowName": "Veo3 Hogan Smith Social Media Prompt",
+      "aiTaskType": "CUSTOM",
+      "originalInput": "{\"Case Information\":\"SSDI back pay recovery\",\"Character Name\":\"Professional man in his 40s\",\"Character Details\":\"Age 40s; white skin; short brown hair; brown eyes. Outfit: charcoal gray suit with a navy blue tie.\",\"Place\":\"Modern Office Lobby\",\"Setup/Storyline\":\"Attorney explaining the back pay process\",\"Number of Video Clips\":4,\"Fine Tuning\":\"confident and reassuring tone\"}",
+      "aiOutput": "<h3>Prompt 1</h3><div id=\"prompt1-content\"><b>Style:</b> Cinematic, professional corporate video style.<br><br><b>Setting:</b> A modern office lobby with a reception desk in the background.<br><br><b>Subject & Action:</b> A professional man in his 40s with white skin, short brown hair, and brown eyes, wearing a charcoal gray suit with a navy blue tie, stands confidently and speaks into the camera. He has our Hogan Smith Law logo on his shirt. After speaking, he smiles.<br><br><b>Synced Script:</b> The man's lips must sync perfectly with: \"We at Hogan Smith Law fight for your defense against insurance companies who deny your rightful SSDI back pay benefits every single day without exception or hesitation because we believe in justice and fairness for all disabled Americans.\"<br><br><b>What not to include:</b> NEVER include any text overlays or subtitles.</div>",
+      "aiModel": "gemini-2.5-pro",
+      "domainContext": "video production for disability law firm",
+      "strictnessThreshold": 60,
+      "notifyEmail": "francor@simple.biz",
+      "customValidationInstructions": "Check that the video prompt: 1) Never uses the words 'us', 'we', or 'defense'. 2) Always refers to the firm in third person as 'Hogan Smith Law' or 'they'. 3) Includes the instruction to never show text overlays, subtitles, or logos. 4) The character description matches the provided Character Details. 5) The script is approximately 20 words and fits an 8-second clip."
+    }
+  }
+]

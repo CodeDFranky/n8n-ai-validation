@@ -1,0 +1,14 @@
+[
+  {
+    "json": {
+      "workflowName": "KOBE - Hogan Smith Automation",
+      "aiTaskType": "GENERATION",
+      "originalInput": "Can I receive SSDI benefits if I have a back injury in Arkansas?",
+      "aiOutput": "<div><p><strong>Can I receive SSDI benefits if I have a back injury in Arkansas?</strong> If you have a <strong>back injury</strong> that prevents you from working, you may be eligible for <strong>Social Security Disability Insurance (SSDI)</strong> benefits. To qualify, your back injury must be severe enough that it limits your ability to perform <strong>substantial gainful activity (SGA)</strong>. The Social Security Administration (SSA) evaluates back injuries under its listing of impairments to determine eligibility. You will need to provide <strong>medical documentation</strong> from your treating physicians that supports the severity of your condition. Arkansas residents follow the same federal SSDI guidelines as all other states.</p></div>",
+      "aiModel": "gpt-4.1-mini",
+      "domainContext": "disability law",
+      "strictnessThreshold": 75,
+      "notifyEmail": "francor@simple.biz"
+    }
+  }
+]

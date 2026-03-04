@@ -1,0 +1,15 @@
+[
+  {
+    "json": {
+      "workflowName": "Veo3 Hogan Smith Social Media Prompt",
+      "aiTaskType": "CUSTOM",
+      "originalInput": "{\"Case Information\":\"SSDI approval after appeal\",\"Character Name\":\"Professional woman in her 30s\",\"Character Details\":\"Age 30s; black skin; dark brown hair; blue eyes; wears glasses. Outfit: dark blue lawyer suit.\",\"Place\":\"Wood Paneled Law Office\",\"Setup/Storyline\":\"Client testimonial about winning case\",\"Number of Video Clips\":4,\"Fine Tuning\":\"upbeat and hopeful vibe\"}",
+      "aiOutput": "<h3>Prompt 1</h3><div id=\"prompt1-content\"><b>Style:</b> Cinematic, professional corporate video style, shallow depth of field.<br><br><b>Setting:</b> A warm, wood-paneled law office with bookshelves filled with legal volumes in soft-focus background.<br><br><b>Subject & Action:</b> A professional woman in her 30s with black skin, dark brown hair, blue eyes, and glasses, wearing a dark blue lawyer suit, walks slowly into frame and speaks directly into the camera lens. After speaking, she holds a small, natural, closed-mouth smile while looking into the camera lens.<br><br><b>Synced Script:</b> The woman's lips must sync perfectly with: \"After Hogan Smith Law took my case, everything changed. They fought for my SSDI approval when I had lost all hope.\"<br><br><b>What not to include:</b> NEVER include any text overlays, subtitles, background music, or sound effects. NEVER include any logos.</div>",
+      "aiModel": "gemini-2.5-pro",
+      "domainContext": "video production for disability law firm",
+      "strictnessThreshold": 60,
+      "notifyEmail": "francor@simple.biz",
+      "customValidationInstructions": "Check that the video prompt: 1) Never uses the words 'us', 'we', or 'defense'. 2) Always refers to the firm in third person as 'Hogan Smith Law' or 'they'. 3) Includes the instruction to never show text overlays, subtitles, or logos. 4) The character description matches the provided Character Details. 5) The script is approximately 20 words and fits an 8-second clip."
+    }
+  }
+]
