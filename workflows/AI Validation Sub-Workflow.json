@@ -1,0 +1,536 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1600,
+        208
+      ],
+      "id": "1b4a327b-636b-4443-ab86-6b232c1e389b",
+      "name": "Sub-Workflow Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nconst missing = [];\nif (!item.workflowName) missing.push('workflowName');\nif (!item.aiTaskType) missing.push('aiTaskType');\nif (!item.originalInput) missing.push('originalInput');\nif (!item.aiOutput) missing.push('aiOutput');\nif (!item.notifyEmail) missing.push('notifyEmail');\n\nif (missing.length > 0) {\n  return [{\n    json: {\n      error: true,\n      message: 'Missing required fields: ' + missing.join(', '),\n      passed: true,\n      needsHumanReview: false,\n      confidenceScore: 0,\n      overallAssessment: 'ERROR',\n      originalAiOutput: item.aiOutput || ''\n    }\n  }];\n}\n\nconst originalInput = typeof item.originalInput === 'string' ? item.originalInput : JSON.stringify(item.originalInput);\nconst aiOutput = typeof item.aiOutput === 'string' ? item.aiOutput : JSON.stringify(item.aiOutput);\n\nreturn [{\n  json: {\n    error: false,\n    workflowName: item.workflowName,\n    aiTaskType: item.aiTaskType.toUpperCase(),\n    originalInput: originalInput,\n    aiOutput: aiOutput,\n    aiModel: item.aiModel || 'unknown',\n    aiPromptUsed: item.aiPromptUsed || '',\n    domainContext: item.domainContext || 'general',\n    strictnessThreshold: item.strictnessThreshold != null ? parseInt(item.strictnessThreshold) : 80,\n    notifyEmail: item.notifyEmail,\n    customValidationInstructions: item.customValidationInstructions || ''\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1328,
+        208
+      ],
+      "id": "16f81291-e9da-4c84-9912-4ab07c82a2c2",
+      "name": "Prepare Validation Context"
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $input.first().json;\n\nvar baseInstructions = 'You are a validation auditor for a disability law firm. Your job is to audit AI-generated outputs for accuracy, hallucinations, and compliance risks.\\n\\n' +\n  'DOMAIN CONTEXT: ' + ctx.domainContext + '\\n' +\n  'AI MODEL USED: ' + ctx.aiModel + '\\n' +\n  (ctx.aiPromptUsed ? 'PROMPT USED: ' + ctx.aiPromptUsed + '\\n' : '') +\n  '\\nORIGINAL INPUT PROVIDED TO THE AI:\\n---\\n' + ctx.originalInput + '\\n---\\n\\n' +\n  'AI OUTPUT BEING VALIDATED:\\n---\\n' + ctx.aiOutput + '\\n---\\n';\n\nvar jsonFormat = '\\n\\nRespond with ONLY a valid JSON object (no code fences, no markdown, no extra text):\\n' +\n  '{\\n' +\n  '  \"confidenceScore\": <integer 0-100>,\\n' +\n  '  \"overallAssessment\": \"<PASS|REVIEW_NEEDED|FAIL>\",\\n' +\n  '  \"flaggedIssues\": [\\n' +\n  '    { \"issue\": \"<description>\", \"severity\": \"<HIGH|MEDIUM|LOW>\", \"recommendation\": \"<what to do>\" }\\n' +\n  '  ],\\n' +\n  '  \"sourceCitations\": [\\n' +\n  '    { \"claim\": \"<what the AI claimed>\", \"source\": \"<exact text from input or NOT SOURCED>\", \"status\": \"<VERIFIED|PLAUSIBLE|UNSOURCED>\" }\\n' +\n  '  ],\\n' +\n  '  \"reasoning\": \"<summary of validation findings>\"\\n' +\n  '}';\n\nvar prompt = '';\n\nif (ctx.aiTaskType === 'EVALUATION') {\n  prompt = baseInstructions +\n    '\\nTASK: EVALUATION VALIDATION\\n' +\n    'The AI was asked to evaluate/classify the original input. For each criterion the AI evaluated:\\n' +\n    '1. Cite the EXACT text from the original input that supports or contradicts the AI conclusion\\n' +\n    '2. Check for FALSE POSITIVES - the AI flagged something not actually present\\n' +\n    '3. Check for FALSE NEGATIVES - the AI missed something it should have caught\\n' +\n    '4. Rate whether evidence STRONGLY, MODERATELY, or WEAKLY supports each conclusion\\n' +\n    (ctx.customValidationInstructions ? '\\nADDITIONAL VALIDATION RULES:\\n' + ctx.customValidationInstructions + '\\n' : '') +\n    jsonFormat;\n} else if (ctx.aiTaskType === 'GENERATION') {\n  prompt = baseInstructions +\n    '\\nTASK: GENERATION VALIDATION\\n' +\n    'The AI generated content based on the original input. For EVERY factual claim in the generated content:\\n' +\n    '1. Cite WHERE that fact comes from in the original input\\n' +\n    '2. If no source exists, label it NOT SOURCED - ASSUMED BY AI\\n' +\n    '3. Label each claim: VERIFIED (traceable to input), PLAUSIBLE (reasonable but not directly sourced), or UNSOURCED (no basis in input - potential hallucination)\\n\\n' +\n    'Pay special attention to:\\n' +\n    '- Hallucinated legal claims, statistics, names, dates, and procedures\\n' +\n    '- Claims about SSDI, disability benefits, or legal processes not in the source material\\n' +\n    '- Invented attorney names, case numbers, or office locations\\n' +\n    (ctx.customValidationInstructions ? '\\nADDITIONAL VALIDATION RULES:\\n' + ctx.customValidationInstructions + '\\n' : '') +\n    jsonFormat;\n} else if (ctx.aiTaskType === 'CUSTOM') {\n  prompt = baseInstructions +\n    '\\nTASK: CUSTOM VALIDATION\\n' +\n    'Validate the AI output using the following custom criteria:\\n\\n' +\n    (ctx.customValidationInstructions || 'No custom instructions provided. Perform a general accuracy and hallucination check.') +\n    jsonFormat;\n} else {\n  prompt = baseInstructions +\n    '\\nTASK: GENERAL VALIDATION\\n' +\n    'Perform a general accuracy and hallucination check on the AI output.\\n' +\n    jsonFormat;\n}\n\nreturn [{\n  json: {\n    workflowName: ctx.workflowName,\n    aiTaskType: ctx.aiTaskType,\n    originalInput: ctx.originalInput,\n    aiOutput: ctx.aiOutput,\n    aiModel: ctx.aiModel,\n    aiPromptUsed: ctx.aiPromptUsed,\n    domainContext: ctx.domainContext,\n    strictnessThreshold: ctx.strictnessThreshold,\n    notifyEmail: ctx.notifyEmail,\n    customValidationInstructions: ctx.customValidationInstructions,\n    validationPrompt: prompt\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        208
+      ],
+      "id": "45bd3054-4289-4b41-9bb8-21f6a251ff85",
+      "name": "Build Validation Prompt"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -896,
+        416
+      ],
+      "id": "b9cadfcc-9896-4b80-98ee-c760d53205ad",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "NpwqDbmTFAPZiqsb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.validationPrompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -896,
+        208
+      ],
+      "id": "2fd9958b-303d-4226-bf19-19c79602321e",
+      "name": "Run Validation",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst context = $('Build Validation Prompt').first().json;\nlet text = item.json.output || '';\n\n// Strip code fences if present\ntext = text.replace(/```json\\s*/g, '').replace(/```\\s*/g, '').trim();\n\nvar parsed;\ntry {\n  parsed = JSON.parse(text);\n} catch (e) {\n  // Try to find JSON object in the text\n  var jsonMatch = text.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    try {\n      parsed = JSON.parse(jsonMatch[0]);\n    } catch (e2) {\n      parsed = {\n        confidenceScore: 50,\n        overallAssessment: 'REVIEW_NEEDED',\n        flaggedIssues: [{ issue: 'Validation response could not be parsed', severity: 'MEDIUM', recommendation: 'Manual review recommended' }],\n        sourceCitations: [],\n        reasoning: 'Parse error: ' + e.message\n      };\n    }\n  } else {\n    parsed = {\n      confidenceScore: 50,\n      overallAssessment: 'REVIEW_NEEDED',\n      flaggedIssues: [{ issue: 'Validation response could not be parsed', severity: 'MEDIUM', recommendation: 'Manual review recommended' }],\n      sourceCitations: [],\n      reasoning: 'Parse error: ' + e.message\n    };\n  }\n}\n\nvar citations = parsed.sourceCitations || [];\n\nreturn [{\n  json: {\n    workflowName: context.workflowName,\n    aiTaskType: context.aiTaskType,\n    originalInput: context.originalInput,\n    aiOutput: context.aiOutput,\n    aiModel: context.aiModel,\n    domainContext: context.domainContext,\n    strictnessThreshold: context.strictnessThreshold,\n    notifyEmail: context.notifyEmail,\n    confidenceScore: parsed.confidenceScore != null ? parsed.confidenceScore : 50,\n    overallAssessment: parsed.overallAssessment || 'REVIEW_NEEDED',\n    flaggedIssues: parsed.flaggedIssues || [],\n    sourceCitations: citations,\n    reasoning: parsed.reasoning || '',\n    unsourcedClaimCount: citations.filter(function(c) { return c.status === 'UNSOURCED'; }).length,\n    totalClaimsChecked: citations.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        208
+      ],
+      "id": "3a118a91-2657-4c63-9cb9-e65e5a7d106f",
+      "name": "Parse Validation Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nvar score = item.confidenceScore;\nvar threshold = item.strictnessThreshold;\nvar flaggedIssues = item.flaggedIssues || [];\nvar highSeverityCount = flaggedIssues.filter(function(i) { return i.severity === 'HIGH'; }).length;\n\nvar passed = score >= threshold;\nvar needsHumanReview = !passed;\n\n// Override: any HIGH-severity issue forces human review\nif (highSeverityCount > 0) {\n  needsHumanReview = true;\n}\n\nvar reviewLevel = 'NONE';\nif (needsHumanReview) {\n  if (score < threshold * 0.5 || highSeverityCount >= 2) {\n    reviewLevel = 'CRITICAL';\n  } else if (highSeverityCount >= 1 || score < threshold * 0.75) {\n    reviewLevel = 'HIGH';\n  } else {\n    reviewLevel = 'MODERATE';\n  }\n}\n\nvar decisionSummary = (passed && !needsHumanReview)\n  ? 'PASSED: Score ' + score + '/' + threshold + ' threshold. No critical issues.'\n  : 'FLAGGED: Score ' + score + '/' + threshold + ' threshold. ' + highSeverityCount + ' high-severity issue(s). Review level: ' + reviewLevel + '.';\n\nreturn [{\n  json: {\n    workflowName: item.workflowName,\n    aiTaskType: item.aiTaskType,\n    originalInput: item.originalInput,\n    aiOutput: item.aiOutput,\n    aiModel: item.aiModel,\n    domainContext: item.domainContext,\n    strictnessThreshold: item.strictnessThreshold,\n    notifyEmail: item.notifyEmail,\n    confidenceScore: item.confidenceScore,\n    overallAssessment: item.overallAssessment,\n    flaggedIssues: item.flaggedIssues,\n    sourceCitations: item.sourceCitations,\n    reasoning: item.reasoning,\n    unsourcedClaimCount: item.unsourcedClaimCount,\n    totalClaimsChecked: item.totalClaimsChecked,\n    passed: passed,\n    needsHumanReview: needsHumanReview,\n    reviewLevel: reviewLevel,\n    decisionSummary: decisionSummary,\n    highSeverityCount: highSeverityCount,\n    validationTimestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        208
+      ],
+      "id": "e03f2dba-7c18-46af-90ef-2b4c5a089612",
+      "name": "Apply Strictness Threshold"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
+          "mode": "list",
+          "cachedResultName": "n8n-ai-validation-audit-log ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.validationTimestamp }}",
+            "Workflow Name": "={{ $json.workflowName }}",
+            "Task Type": "={{ $json.aiTaskType }}",
+            "AI Model": "={{ $json.aiModel }}",
+            "Confidence Score": "={{ $json.confidenceScore }}",
+            "Overall Assessment": "={{ $json.overallAssessment }}",
+            "Passed": "={{ $json.passed }}",
+            "Strictness Threshold": "={{ $json.strictnessThreshold }}",
+            "Flagged Issues Count": "={{ $json.flaggedIssues }}",
+            "High Severity Count": "={{ $json.flaggedIssues[3].severity }}",
+            "Unsourced Claims": "={{ $json.unsourcedClaimCount }}",
+            "Total Claims Checked": "={{ $json.totalClaimsChecked }}",
+            "Reasoning": "={{ $json.reasoning }}",
+            "Execution ID": "={{ $execution.id }} "
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Workflow Name",
+              "displayName": "Workflow Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Task Type",
+              "displayName": "Task Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Model",
+              "displayName": "AI Model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Overall Assessment",
+              "displayName": "Overall Assessment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Strictness Threshold",
+              "displayName": "Strictness Threshold",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Passed",
+              "displayName": "Passed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Flagged Issues Count",
+              "displayName": "Flagged Issues Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "High Severity Count",
+              "displayName": "High Severity Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Unsourced Claims",
+              "displayName": "Unsourced Claims",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Claims Checked",
+              "displayName": "Total Claims Checked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reasoning",
+              "displayName": "Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Execution ID",
+              "displayName": "Execution ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -112,
+        208
+      ],
+      "id": "abd0c3c0-0b4c-4726-8d83-2fb23164aee5",
+      "name": "Write Audit Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKCeMwlrPG6pXvK7",
+          "name": "Google Sheets Kayser"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "route-needs-review",
+              "leftValue": "={{ $('Apply Strictness Threshold').first().json.needsHumanReview }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        208
+      ],
+      "id": "9881fd7d-72ed-4824-b09e-0f85b26f9435",
+      "name": "Route Decision"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pull from Apply Strictness Threshold - Write Audit Log (Google Sheets) strips\n// the data down to 14 flat columns, losing arrays like flaggedIssues and sourceCitations.\nconst item = $('Apply Strictness Threshold').first().json;\n\nvar score = item.confidenceScore;\nvar threshold = item.strictnessThreshold;\nvar severity = item.reviewLevel;\nvar workflowName = item.workflowName;\nvar flaggedIssues = item.flaggedIssues || [];\nvar citations = (item.sourceCitations || []).slice(0, 10);\nvar aiOutput = (item.aiOutput || '').substring(0, 2000);\nvar executionId = $execution.id || 'N/A';\n\nvar issuesHtml = '';\nfor (var i = 0; i < flaggedIssues.length; i++) {\n  var issue = flaggedIssues[i];\n  var color = issue.severity === 'HIGH' ? '#dc3545' : (issue.severity === 'MEDIUM' ? '#ffc107' : '#28a745');\n  issuesHtml += '<tr>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + (i + 1) + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\"><span style=\"color:' + color + ';font-weight:bold;\">' + issue.severity + '</span></td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + issue.issue + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + issue.recommendation + '</td>' +\n    '</tr>';\n}\n\nvar citationsHtml = '';\nfor (var j = 0; j < citations.length; j++) {\n  var c = citations[j];\n  var statusColor = c.status === 'VERIFIED' ? '#28a745' : (c.status === 'PLAUSIBLE' ? '#ffc107' : '#dc3545');\n  citationsHtml += '<tr>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + c.claim + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + c.source + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\"><span style=\"color:' + statusColor + ';font-weight:bold;\">' + c.status + '</span></td>' +\n    '</tr>';\n}\n\nvar severityColor = severity === 'CRITICAL' ? '#dc3545' : (severity === 'HIGH' ? '#ff6b35' : '#ffc107');\n\nvar emailBody = '<div style=\"font-family:Arial,sans-serif;max-width:800px;margin:0 auto;\">' +\n  '<div style=\"background:' + severityColor + ';color:white;padding:16px;border-radius:8px 8px 0 0;\">' +\n  '<h2 style=\"margin:0;\">AI Validation Review Required</h2>' +\n  '<p style=\"margin:4px 0 0;\">Workflow: ' + workflowName + ' | Severity: ' + severity + '</p>' +\n  '</div>' +\n  '<div style=\"padding:16px;border:1px solid #ddd;border-top:none;\">' +\n  '<table style=\"width:100%;border-collapse:collapse;margin-bottom:16px;\">' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Confidence Score:</td><td style=\"padding:8px;\">' + score + ' / ' + threshold + ' threshold</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Assessment:</td><td style=\"padding:8px;\">' + item.overallAssessment + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Task Type:</td><td style=\"padding:8px;\">' + item.aiTaskType + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">AI Model:</td><td style=\"padding:8px;\">' + item.aiModel + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Execution ID:</td><td style=\"padding:8px;\">' + executionId + '</td></tr>' +\n  '</table>' +\n  '<h3>Reasoning</h3>' +\n  '<p>' + item.reasoning + '</p>' +\n  (flaggedIssues.length > 0 ?\n    '<h3>Flagged Issues (' + flaggedIssues.length + ')</h3>' +\n    '<table style=\"width:100%;border-collapse:collapse;\">' +\n    '<tr style=\"background:#f5f5f5;\"><th style=\"padding:8px;border:1px solid #ddd;\">#</th><th style=\"padding:8px;border:1px solid #ddd;\">Severity</th><th style=\"padding:8px;border:1px solid #ddd;\">Issue</th><th style=\"padding:8px;border:1px solid #ddd;\">Recommendation</th></tr>' +\n    issuesHtml +\n    '</table>' : '') +\n  (citations.length > 0 ?\n    '<h3>Source Citations (showing ' + citations.length + ')</h3>' +\n    '<table style=\"width:100%;border-collapse:collapse;\">' +\n    '<tr style=\"background:#f5f5f5;\"><th style=\"padding:8px;border:1px solid #ddd;\">Claim</th><th style=\"padding:8px;border:1px solid #ddd;\">Source</th><th style=\"padding:8px;border:1px solid #ddd;\">Status</th></tr>' +\n    citationsHtml +\n    '</table>' : '') +\n  '<h3>Original AI Output (first 2000 chars)</h3>' +\n  '<div style=\"background:#f9f9f9;padding:12px;border-radius:4px;white-space:pre-wrap;font-size:13px;max-height:400px;overflow:auto;\">' + aiOutput + '</div>' +\n  '</div></div>';\n\nvar emailSubject = '[AI REVIEW ' + severity + '] ' + workflowName + ' - Score ' + score + '/' + threshold;\n\nreturn [{\n  json: {\n    workflowName: item.workflowName,\n    aiTaskType: item.aiTaskType,\n    originalInput: item.originalInput,\n    aiOutput: item.aiOutput,\n    aiModel: item.aiModel,\n    domainContext: item.domainContext,\n    strictnessThreshold: item.strictnessThreshold,\n    notifyEmail: item.notifyEmail,\n    confidenceScore: item.confidenceScore,\n    overallAssessment: item.overallAssessment,\n    flaggedIssues: item.flaggedIssues,\n    sourceCitations: item.sourceCitations,\n    reasoning: item.reasoning,\n    unsourcedClaimCount: item.unsourcedClaimCount,\n    totalClaimsChecked: item.totalClaimsChecked,\n    passed: item.passed,\n    needsHumanReview: item.needsHumanReview,\n    reviewLevel: item.reviewLevel,\n    decisionSummary: item.decisionSummary,\n    highSeverityCount: item.highSeverityCount,\n    validationTimestamp: item.validationTimestamp,\n    emailBody: emailBody,\n    emailSubject: emailSubject,\n    executionId: executionId\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        16
+      ],
+      "id": "49474c4e-f675-4b10-871d-0a4d62c21d35",
+      "name": "Format Review Alert"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.notifyEmail }}",
+        "subject": "={{ $json.emailSubject }}",
+        "message": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        16
+      ],
+      "id": "661f9f7b-c3d5-4e68-96b6-db9fc5f0386b",
+      "name": "Send Review Email",
+      "webhookId": "3df3d7bb-9f47-46c9-bc5f-512e65fa4f94",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qM7dhKTVMgRpFpv9",
+          "name": "Kayser Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reference Apply Strictness Threshold directly - this has all validation data\n// regardless of whether we came via the email branch (TRUE) or skipped it (FALSE).\n// The Gmail node output replaces input data with API metadata, so $input is unreliable here.\nconst item = $('Apply Strictness Threshold').first().json;\n\nreturn [{\n  json: {\n    passed: item.passed,\n    needsHumanReview: item.needsHumanReview,\n    confidenceScore: item.confidenceScore,\n    overallAssessment: item.overallAssessment,\n    reviewLevel: item.reviewLevel,\n    decisionSummary: item.decisionSummary,\n    reasoning: item.reasoning,\n    flaggedIssues: item.flaggedIssues,\n    sourceCitations: item.sourceCitations,\n    unsourcedClaimCount: item.unsourcedClaimCount,\n    totalClaimsChecked: item.totalClaimsChecked,\n    validationTimestamp: item.validationTimestamp,\n    strictnessThreshold: item.strictnessThreshold,\n    workflowName: item.workflowName,\n    originalAiOutput: item.aiOutput\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        208
+      ],
+      "id": "bc390b41-6ab8-4848-a199-d9800bbcba6a",
+      "name": "Return Results"
+    }
+  ],
+  "connections": {
+    "Sub-Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare Validation Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Validation Context": {
+      "main": [
+        [
+          {
+            "node": "Build Validation Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Validation Prompt": {
+      "main": [
+        [
+          {
+            "node": "Run Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Run Validation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Validation": {
+      "main": [
+        [
+          {
+            "node": "Parse Validation Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Validation Result": {
+      "main": [
+        [
+          {
+            "node": "Apply Strictness Threshold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Strictness Threshold": {
+      "main": [
+        [
+          {
+            "node": "Write Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Audit Log": {
+      "main": [
+        [
+          {
+            "node": "Route Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Decision": {
+      "main": [
+        [
+          {
+            "node": "Format Review Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Review Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Review Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Review Email": {
+      "main": [
+        [
+          {
+            "node": "Return Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Sub-Workflow Trigger": [
+      {
+        "workflowName": "Test Validation - FAIL",
+        "aiTaskType": "GENERATION",
+        "originalInput": "What is SSDI back pay and how does it work in Arkansas?",
+        "aiOutput": "SSDI back pay is the compensation owed for the period between your application date and approval. In Arkansas, this follows federal guidelines. Back pay can be issued as a lump sum. The average SSDI back pay amount in Arkansas is $12,000 and most cases are resolved within 90 days.",
+        "aiModel": "gpt-4.1-mini",
+        "domainContext": "disability law",
+        "strictnessThreshold": 80,
+        "notifyEmail": "francor@simple.biz"
+      },
+      {
+        "workflowName": "Test Validation - PASS",
+        "aiTaskType": "EVALUATION",
+        "originalInput": "Speaker 0: Thank you for calling Hogan Smith Law, how can I help you today? Speaker 1: Yeah I need to speak with Dan Smith right now. I've been waiting three weeks for a callback and nobody has gotten back to me about my case. This is ridiculous. Speaker 0: I understand your frustration, let me see if I can get someone to help you. Speaker 1: You better, because I'm about to find another lawyer.",
+        "aiOutput": "TRUE",
+        "aiModel": "claude-haiku-4-5",
+        "domainContext": "call center evaluation",
+        "strictnessThreshold": 85,
+        "notifyEmail": "francor@simple.biz"
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
+  }
+}

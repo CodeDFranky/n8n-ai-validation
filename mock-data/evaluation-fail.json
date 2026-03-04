@@ -1,0 +1,15 @@
+[
+  {
+    "json": {
+      "workflowName": "Call Transcribe Flag Forward",
+      "aiTaskType": "EVALUATION",
+      "originalInput": "Speaker 0: Good morning, Hogan Smith Law. Speaker 1: Hi, my name is Sarah Johnson. I'm calling to check on the status of my application. I submitted my paperwork last week and just wanted to make sure everything was received. Speaker 0: Of course, let me pull that up for you. Yes, we have everything. Your case worker will be in touch within the next few business days. Speaker 1: Great, thank you so much. Have a wonderful day. Speaker 0: You too, goodbye.",
+      "aiOutput": "TRUE",
+      "aiModel": "claude-haiku-4-5",
+      "domainContext": "call center evaluation",
+      "strictnessThreshold": 85,
+      "notifyEmail": "francor@simple.biz",
+      "aiPromptUsed": "Examine the transcript and respond TRUE if any of the following are very likely true: The call has an upset caller, The name Dan Smith was mentioned, The caller is from a judge's office, There is an audio quality issue. Respond FALSE if none are likely true."
+    }
+  }
+]

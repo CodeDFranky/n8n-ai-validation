@@ -1,0 +1,15 @@
+[
+  {
+    "json": {
+      "workflowName": "Call Transcribe Flag Forward",
+      "aiTaskType": "EVALUATION",
+      "originalInput": "Speaker 0: Thank you for calling Hogan Smith Law, how can I help you today? Speaker 1: Yeah I need to speak with Dan Smith right now. I've been waiting three weeks for a callback and nobody has gotten back to me about my case. This is ridiculous. Speaker 0: I understand your frustration, let me see if I can get someone to help you. Speaker 1: You better, because I'm about to find another lawyer.",
+      "aiOutput": "TRUE",
+      "aiModel": "claude-haiku-4-5",
+      "domainContext": "call center evaluation",
+      "strictnessThreshold": 85,
+      "notifyEmail": "francor@simple.biz",
+      "aiPromptUsed": "Examine the transcript and respond TRUE if any of the following are very likely true: The call has an upset caller, The name Dan Smith was mentioned, The caller is from a judge's office, There is an audio quality issue. Respond FALSE if none are likely true."
+    }
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "json": {
+      "workflowName": "KOBE - Hogan Smith Automation",
+      "aiTaskType": "GENERATION",
+      "originalInput": "What is SSDI back pay and how does it work in Arkansas?",
+      "aiOutput": "<div><p><strong>What is SSDI back pay and how does it work in Arkansas?</strong> In Arkansas, <strong>SSDI back pay</strong> is the compensation you are owed for the time between when you applied for <strong>Social Security Disability Insurance (SSDI)</strong> and when your application is approved. The <strong>average SSDI back pay amount in Arkansas is $12,000</strong> and most cases are resolved within <strong>90 days</strong>. Attorney John Williams at Hogan Smith Law has successfully recovered over <strong>$2 million in back pay</strong> for Arkansas clients. Under Arkansas state law Section 14-7, disability claimants are entitled to expedited processing of back pay claims.</p></div>",
+      "aiModel": "gpt-4.1-mini",
+      "domainContext": "disability law",
+      "strictnessThreshold": 80,
+      "notifyEmail": "francor@simple.biz"
+    }
+  }
+]
