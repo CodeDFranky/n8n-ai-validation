@@ -1,0 +1,552 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000001",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const errorData = $input.first().json;\n\n// Extract execution context from error trigger payload\nvar executionData = errorData.execution || {};\nvar executionId = executionData.id || 'N/A';\nvar errorMessage = '';\nif (executionData.error && executionData.error.message) {\n  errorMessage = executionData.error.message;\n} else if (typeof executionData.error === 'string') {\n  errorMessage = executionData.error;\n} else {\n  errorMessage = 'Unknown error';\n}\nvar lastNode = executionData.lastNodeExecuted || 'Unknown';\n\n// Attempt to extract original input parameters from the execution data.\n// The error trigger provides executionData.data.resultData.runData which contains\n// node execution results. The trigger node output has the original parameters.\nvar originalParams = {\n  workflowName: '',\n  aiTaskType: '',\n  originalInput: '',\n  aiOutput: '',\n  aiModel: '',\n  domainContext: '',\n  strictnessThreshold: 80,\n  notifyEmail: '',\n  customValidationInstructions: ''\n};\n\ntry {\n  var runData = executionData.data && executionData.data.resultData && executionData.data.resultData.runData;\n  if (runData) {\n    // Try to get data from the trigger node\n    var triggerData = runData['Sub-Workflow Trigger'];\n    if (triggerData && triggerData[0] && triggerData[0].data && triggerData[0].data.main && triggerData[0].data.main[0]) {\n      var triggerOutput = triggerData[0].data.main[0][0].json;\n      originalParams.workflowName = triggerOutput.workflowName || '';\n      originalParams.aiTaskType = triggerOutput.aiTaskType || '';\n      originalParams.originalInput = triggerOutput.originalInput || '';\n      originalParams.aiOutput = triggerOutput.aiOutput || '';\n      originalParams.aiModel = triggerOutput.aiModel || '';\n      originalParams.domainContext = triggerOutput.domainContext || '';\n      originalParams.strictnessThreshold = triggerOutput.strictnessThreshold || 80;\n      originalParams.notifyEmail = triggerOutput.notifyEmail || '';\n      originalParams.customValidationInstructions = triggerOutput.customValidationInstructions || '';\n    }\n    // If trigger didn't have it, try Prepare Validation Context\n    if (!originalParams.workflowName) {\n      var prepData = runData['Prepare Validation Context'];\n      if (prepData && prepData[0] && prepData[0].data && prepData[0].data.main && prepData[0].data.main[0]) {\n        var prepOutput = prepData[0].data.main[0][0].json;\n        originalParams.workflowName = prepOutput.workflowName || '';\n        originalParams.aiTaskType = prepOutput.aiTaskType || '';\n        originalParams.originalInput = prepOutput.originalInput || '';\n        originalParams.aiOutput = prepOutput.aiOutput || '';\n        originalParams.aiModel = prepOutput.aiModel || '';\n        originalParams.domainContext = prepOutput.domainContext || '';\n        originalParams.strictnessThreshold = prepOutput.strictnessThreshold || 80;\n        originalParams.notifyEmail = prepOutput.notifyEmail || '';\n        originalParams.customValidationInstructions = prepOutput.customValidationInstructions || '';\n      }\n    }\n  }\n} catch (e) {\n  // If we can't extract params, we'll log what we have\n  errorMessage += ' | Parameter extraction failed: ' + e.message;\n}\n\nreturn [{\n  json: {\n    timestamp: new Date().toISOString(),\n    originalExecutionId: executionId,\n    workflowName: originalParams.workflowName || 'Unknown',\n    status: 'PENDING',\n    retryCount: 0,\n    lastRetry: '',\n    errorMessage: errorMessage,\n    lastNode: lastNode,\n    // Original parameters for retry\n    paramWorkflowName: originalParams.workflowName,\n    paramAiTaskType: originalParams.aiTaskType,\n    paramOriginalInput: originalParams.originalInput,\n    paramAiOutput: originalParams.aiOutput,\n    paramAiModel: originalParams.aiModel,\n    paramDomainContext: originalParams.domainContext,\n    paramStrictnessThreshold: originalParams.strictnessThreshold,\n    paramNotifyEmail: originalParams.notifyEmail,\n    paramCustomValidationInstructions: originalParams.customValidationInstructions\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        -200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000002",
+      "name": "Extract Error Context"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
+          "mode": "list",
+          "cachedResultName": "n8n-ai-validation-audit-log ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Retry Queue",
+          "mode": "list",
+          "cachedResultName": "Retry Queue"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Original Execution ID": "={{ $json.originalExecutionId }}",
+            "Workflow Name": "={{ $json.workflowName }}",
+            "Status": "={{ $json.status }}",
+            "Retry Count": "={{ $json.retryCount }}",
+            "Last Retry": "={{ $json.lastRetry }}",
+            "Error Message": "={{ $json.errorMessage }}",
+            "workflowName": "={{ $json.paramWorkflowName }}",
+            "aiTaskType": "={{ $json.paramAiTaskType }}",
+            "originalInput": "={{ $json.paramOriginalInput }}",
+            "aiOutput": "={{ $json.paramAiOutput }}",
+            "aiModel": "={{ $json.paramAiModel }}",
+            "domainContext": "={{ $json.paramDomainContext }}",
+            "strictnessThreshold": "={{ $json.paramStrictnessThreshold }}",
+            "notifyEmail": "={{ $json.paramNotifyEmail }}",
+            "customValidationInstructions": "={{ $json.paramCustomValidationInstructions }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            { "id": "Timestamp", "displayName": "Timestamp", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Original Execution ID", "displayName": "Original Execution ID", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Workflow Name", "displayName": "Workflow Name", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Status", "displayName": "Status", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Retry Count", "displayName": "Retry Count", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Last Retry", "displayName": "Last Retry", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Error Message", "displayName": "Error Message", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "workflowName", "displayName": "workflowName", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "aiTaskType", "displayName": "aiTaskType", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "originalInput", "displayName": "originalInput", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "aiOutput", "displayName": "aiOutput", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "aiModel", "displayName": "aiModel", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "domainContext", "displayName": "domainContext", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "strictnessThreshold", "displayName": "strictnessThreshold", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "notifyEmail", "displayName": "notifyEmail", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "customValidationInstructions", "displayName": "customValidationInstructions", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -320,
+        -200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000003",
+      "name": "Log to Retry Queue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKCeMwlrPG6pXvK7",
+          "name": "Google Sheets Kayser"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Extract Error Context').first().json.paramNotifyEmail || 'francor@simple.biz' }}",
+        "subject": "=[VALIDATION FAILURE] {{ $('Extract Error Context').first().json.workflowName }} - Sub-workflow error",
+        "message": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;\"><div style=\"background:#dc3545;color:white;padding:16px;border-radius:8px 8px 0 0;\"><h2 style=\"margin:0;\">Validation Sub-Workflow Failed</h2></div><div style=\"padding:16px;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;\"><table style=\"width:100%;border-collapse:collapse;\"><tr><td style=\"padding:8px;font-weight:bold;\">Workflow:</td><td style=\"padding:8px;\">{{ $('Extract Error Context').first().json.workflowName }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Execution ID:</td><td style=\"padding:8px;font-family:monospace;\">{{ $('Extract Error Context').first().json.originalExecutionId }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Failed Node:</td><td style=\"padding:8px;\">{{ $('Extract Error Context').first().json.lastNode }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Error:</td><td style=\"padding:8px;\">{{ $('Extract Error Context').first().json.errorMessage }}</td></tr></table><p style=\"margin-top:16px;padding:12px;background:#fff3cd;border-radius:4px;\">This execution has been added to the <strong>Retry Queue</strong> and will be automatically retried every 30 minutes (up to 3 attempts).</p></div></div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        -200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000004",
+      "name": "Send Failure Alert",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qM7dhKTVMgRpFpv9",
+          "name": "Kayser Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000005",
+      "name": "Every 30 Minutes"
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
+          "mode": "list",
+          "cachedResultName": "n8n-ai-validation-audit-log ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Retry Queue",
+          "mode": "list",
+          "cachedResultName": "Retry Queue"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -560,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000006",
+      "name": "Read Retry Queue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKCeMwlrPG6pXvK7",
+          "name": "Google Sheets Kayser"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst pending = items.filter(function(item) {\n  return item.json.Status === 'PENDING';\n});\n\nif (pending.length === 0) {\n  return [{ json: { noPending: true } }];\n}\n\nreturn pending;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000007",
+      "name": "Filter Pending"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-has-pending",
+              "leftValue": "={{ $json.noPending }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notTrue",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000008",
+      "name": "Has Pending?"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        160,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000009",
+      "name": "Loop Items"
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "6duP007x1yFIH99y",
+          "mode": "id"
+        },
+        "fields": {
+          "values": [
+            { "name": "workflowName", "value": "={{ $json.workflowName }}" },
+            { "name": "aiTaskType", "value": "={{ $json.aiTaskType }}" },
+            { "name": "originalInput", "value": "={{ $json.originalInput }}" },
+            { "name": "aiOutput", "value": "={{ $json.aiOutput }}" },
+            { "name": "aiModel", "value": "={{ $json.aiModel }}" },
+            { "name": "domainContext", "value": "={{ $json.domainContext }}" },
+            { "name": "strictnessThreshold", "value": "={{ $json.strictnessThreshold }}" },
+            { "name": "notifyEmail", "value": "={{ $json.notifyEmail }}" },
+            { "name": "customValidationInstructions", "value": "={{ $json.customValidationInstructions }}" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000010",
+      "name": "Retry Sub-Workflow",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const retryItem = $('Loop Items').first().json;\nconst subResult = $input.first().json;\n\nvar currentRetryCount = parseInt(retryItem['Retry Count'] || retryItem.retryCount || 0) + 1;\nvar originalExecutionId = retryItem['Original Execution ID'] || retryItem.originalExecutionId || '';\nvar notifyEmail = retryItem.notifyEmail || retryItem.paramNotifyEmail || '';\nvar workflowName = retryItem['Workflow Name'] || retryItem.workflowName || '';\n\n// Check if the sub-workflow succeeded\nvar succeeded = false;\nif (subResult && subResult.confidenceScore != null && !subResult.error) {\n  succeeded = true;\n}\n\nvar newStatus;\nvar needsEscalation = false;\nif (succeeded) {\n  newStatus = 'RESOLVED';\n} else if (currentRetryCount >= 3) {\n  newStatus = 'FAILED_PERMANENT';\n  needsEscalation = true;\n} else {\n  newStatus = 'PENDING';\n}\n\nreturn [{\n  json: {\n    originalExecutionId: originalExecutionId,\n    status: newStatus,\n    retryCount: currentRetryCount,\n    lastRetry: new Date().toISOString(),\n    needsEscalation: needsEscalation,\n    notifyEmail: notifyEmail,\n    workflowName: workflowName\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000011",
+      "name": "Check Retry Result"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
+          "mode": "list",
+          "cachedResultName": "n8n-ai-validation-audit-log ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Retry Queue",
+          "mode": "list",
+          "cachedResultName": "Retry Queue"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Original Execution ID": "={{ $json.originalExecutionId }}",
+            "Status": "={{ $json.status }}",
+            "Retry Count": "={{ $json.retryCount }}",
+            "Last Retry": "={{ $json.lastRetry }}"
+          },
+          "matchingColumns": [
+            "Original Execution ID"
+          ],
+          "schema": [
+            { "id": "Original Execution ID", "displayName": "Original Execution ID", "required": false, "defaultMatch": true, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Status", "displayName": "Status", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Retry Count", "displayName": "Retry Count", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Last Retry", "displayName": "Last Retry", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000012",
+      "name": "Update Queue Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKCeMwlrPG6pXvK7",
+          "name": "Google Sheets Kayser"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-escalation",
+              "leftValue": "={{ $json.needsEscalation }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        200
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000013",
+      "name": "Needs Escalation?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Check Retry Result').first().json.notifyEmail || 'francor@simple.biz' }}",
+        "subject": "=[VALIDATION ESCALATION] {{ $('Check Retry Result').first().json.workflowName }} - Permanent failure after 3 retries",
+        "message": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;\"><div style=\"background:#721c24;color:white;padding:16px;border-radius:8px 8px 0 0;\"><h2 style=\"margin:0;\">Validation Permanently Failed</h2><p style=\"margin:4px 0 0;\">3 retry attempts exhausted</p></div><div style=\"padding:16px;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;\"><table style=\"width:100%;border-collapse:collapse;\"><tr><td style=\"padding:8px;font-weight:bold;\">Workflow:</td><td style=\"padding:8px;\">{{ $('Check Retry Result').first().json.workflowName }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Original Execution ID:</td><td style=\"padding:8px;font-family:monospace;\">{{ $('Check Retry Result').first().json.originalExecutionId }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Total Attempts:</td><td style=\"padding:8px;\">3</td></tr></table><p style=\"margin-top:16px;padding:12px;background:#f8d7da;border-radius:4px;color:#721c24;\"><strong>Action Required:</strong> This AI output was never validated. Please manually review the output in the n8n execution log and investigate the root cause of the sub-workflow failure.</p></div></div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1360,
+        100
+      ],
+      "id": "b1c2d3e4-f5a6-7890-abcd-200000000014",
+      "name": "Send Escalation Email",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qM7dhKTVMgRpFpv9",
+          "name": "Kayser Gmail"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Error Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Error Context": {
+      "main": [
+        [
+          {
+            "node": "Log to Retry Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Retry Queue": {
+      "main": [
+        [
+          {
+            "node": "Send Failure Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 30 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Read Retry Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Retry Queue": {
+      "main": [
+        [
+          {
+            "node": "Filter Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Pending": {
+      "main": [
+        [
+          {
+            "node": "Has Pending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Pending?": {
+      "main": [
+        [
+          {
+            "node": "Loop Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Loop Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Retry Sub-Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Sub-Workflow": {
+      "main": [
+        [
+          {
+            "node": "Check Retry Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Retry Result": {
+      "main": [
+        [
+          {
+            "node": "Update Queue Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Queue Status": {
+      "main": [
+        [
+          {
+            "node": "Needs Escalation?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Escalation?": {
+      "main": [
+        [
+          {
+            "node": "Send Escalation Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Escalation Email": {
+      "main": [
+        [
+          {
+            "node": "Loop Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
+  }
+}

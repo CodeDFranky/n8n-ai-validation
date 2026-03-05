@@ -7,7 +7,7 @@
 ## Before Deploying Any Workflow
 
 - [ ] **BAA executed** with each AI provider used (OpenAI, Anthropic, Google, Deepgram)
-- [ ] **BAA executed** with Google Workspace (covers Gmail and Google Sheets)
+- [ ] **BAA executed** with Google Workspace (covers Gmail and Google Sheets) — *Confirmed: BAA covers audit log sheet as ePHI repository*
 - [ ] **n8n instance access** restricted to authorized developers only
 - [ ] **BAA scope covers validation sub-workflow** — GPT-4.1-mini receives `originalInput` (potentially full transcripts containing ePHI) for validation; confirm this data flow is explicitly within the OpenAI BAA scope — §164.314(a)
 - [ ] **AI service inventory updated** — list the validation sub-workflow's AI model as a separate entry in the written inventory (it is a distinct data processor from the parent workflow's AI) — §164.308(a)(1)
@@ -17,7 +17,7 @@
 - [ ] Only pass the **minimum PHI needed** for the AI's task — avoid sending full transcripts or records when excerpts suffice
 - [ ] Strip or redact PHI fields that are not relevant to the AI's function before passing data downstream
 - [ ] **Validation sub-workflow inputs** — confirm that `originalInput` passed to the validator contains only the minimum PHI necessary for validation (not ancillary data) — §164.502(b)
-- [ ] **Email notification truncation** — evaluate whether the 2,000-character AI output excerpt in review emails exposes PHI beyond what is necessary for the reviewer to act; adjust per workflow — §164.502(b)
+- [x] **Email notification truncation** — AI output excerpt replaced with n8n execution log link; review emails now contain zero PHI — §164.502(b)
 
 ## Encryption
 
@@ -32,7 +32,7 @@
 - [ ] Sheet access restricted to **authorized personnel only** (not shared broadly)
 - [ ] **Audit log treated as ePHI** — the "Reasoning" column may contain PHI excerpts from the validator's analysis; apply the same access controls and retention rules as other ePHI repositories — §164.312(a)(1)
 - [ ] **Audit log review cadence** — assign a specific person to review the validation audit log at least **monthly** (or quarterly for low-volume workflows); document the review date and reviewer name — §164.308(a)(1)(ii)(D)
-- [ ] **Review closure tracking** — when a validation flags an output for human review, document who reviewed it, what action was taken, and the date; use a separate "Review Dispositions" tab or add columns to the audit log — §164.312(d)
+- [x] **Review closure tracking** — review alert emails include action buttons (Confirmed OK / Corrected / Escalated) that open a web form; submissions update the audit log row via the Review Response Handler workflow — §164.312(d)
 
 ## Validation Sub-Workflow Controls
 
@@ -49,7 +49,7 @@
 
 ## Contingency Planning — §164.308(a)(7)
 
-- [ ] **Validation sub-workflow failure mode** — if the sub-workflow errors (API timeout, Google Sheets unavailable, n8n crash), the parent workflow continues unaffected (by design); document this as accepted behavior and confirm parent workflows have error handling that does not depend on the sub-workflow returning successfully
+- [x] **Validation sub-workflow failure mode** — failures are automatically captured by the Validation Retry Queue workflow, logged to the "Retry Queue" sheet tab, and retried every 30 minutes (up to 3 attempts); parent workflows continue unaffected (by design)
 - [ ] **Audit log backup** — include the AI Validation Audit Log Google Sheet in regular backup procedures (or confirm Google's built-in version history and Vault retention satisfy backup requirements)
 - [ ] **Validator model unavailability** — if OpenAI's GPT-4.1-mini is unavailable for an extended period, define whether parent workflows continue without validation (current default) or whether manual review should be substituted
 
@@ -58,7 +58,7 @@
 - [ ] Review alert recipients are **designated reviewers** only — not broad distribution lists
 - [ ] Full AI output in emails limited to what's necessary for review
 - [ ] Confirm recipient email accounts are on **BAA-covered domains**
-- [ ] **Email content PHI spot-check** — periodically review alert emails to confirm the 2,000-character AI output excerpt does not include unnecessary PHI; for PHI-heavy workflows, consider reducing the character limit or switching to an n8n execution log link — §164.502(b)
+- [x] **Email content PHI spot-check** — AI output excerpt removed from emails entirely; replaced with n8n execution log link accessible only to authorized users — §164.502(b)
 
 ## Ongoing
 

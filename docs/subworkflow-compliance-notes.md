@@ -6,25 +6,34 @@
 
 ---
 
-## 1. Audit Log Schema Additions (Supplements Section 6)
+## 1. Audit Log Schema Additions (Supplements Section 6) — IMPLEMENTED
 
-Add three manual-entry columns to the AI Validation Audit Log Google Sheet:
+Four new columns added to the AI Validation Audit Log Google Sheet:
 
 | Column | Value | Populated By |
 |---|---|---|
-| Reviewed By | Name or email of the person who reviewed the flagged output | Human reviewer (manual) |
-| Review Date | Date the review was completed | Human reviewer (manual) |
-| Disposition | Action taken: `Confirmed OK` / `Corrected` / `Escalated` / (blank if not yet reviewed) | Human reviewer (manual) |
+| Reviewed By | Name or email of the person who reviewed the flagged output | Review Response Handler (via email action buttons) |
+| Review Date | ISO timestamp when review was submitted | Review Response Handler (auto-generated) |
+| Disposition | Action taken: `Confirmed OK` / `Corrected` / `Escalated` / (blank if not yet reviewed) | Review Response Handler (via email action buttons) |
+| Review Notes | Optional notes from the reviewer | Review Response Handler (via form submission) |
 
-These columns are **not populated by the sub-workflow**. The sub-workflow appends only the automated columns (Timestamp through Execution ID). The review columns are blank on initial write and filled by the human reviewer after receiving a review alert email.
+These columns are **not populated by the sub-workflow**. The sub-workflow appends only the automated columns (Timestamp through Execution ID). The review columns are populated via the **Review Response Handler** workflow (`workflows/Review Response Handler.json`), which serves an HTML form linked from action buttons in the review alert email.
 
-**Rationale:** Closes the audit loop required by §164.308(a)(1)(ii)(D) and §164.312(d). Without these columns, there is no record that flagged items were actually reviewed or what action was taken.
+**How it works:**
+1. Review alert emails include three action buttons: **Confirmed OK** (green), **Corrected** (yellow), **Escalated** (red)
+2. Clicking a button opens a web form (served by an n8n webhook) pre-filled with the execution ID and selected disposition
+3. The reviewer enters their name and optional notes, then submits
+4. The Review Response Handler updates the matching audit log row via Google Sheets Update (matched on Execution ID)
+
+**Rationale:** Closes the audit loop required by §164.308(a)(1)(ii)(D) and §164.312(d) while keeping the process convenient — reviewers never need to open the Google Sheet directly.
 
 ---
 
-## 2. ePHI Warning for Audit Log (Supplements Section 6)
+## 2. ePHI Warning for Audit Log (Supplements Section 6) — CONFIRMED
 
 The "Reasoning" column in the audit log will contain the validator's summary of its analysis. This summary may reference specific claims, names, dates, or medical information from the original input — making it **electronic protected health information (ePHI)**.
+
+**BAA Coverage Confirmed:** The Google Sheets audit log (Sheet ID: `1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo`) is stored in the BAA-covered Google Workspace account. The executed BAA with Google covers this sheet as an ePHI repository.
 
 **Requirements:**
 - The AI Validation Audit Log Google Sheet must be treated as an ePHI repository
@@ -37,25 +46,28 @@ The "Reasoning" column in the audit log will contain the validator's summary of 
 
 ---
 
-## 3. Email Notification — Minimum Necessary Consideration (Supplements Section 7)
+## 3. Email Notification — Minimum Necessary Consideration (Supplements Section 7) — IMPLEMENTED
 
-The sub-workflow design includes the first 2,000 characters of the original AI output in review alert emails. This is a **fixed truncation** and does not filter or redact PHI.
+The AI output excerpt has been **removed from review alert emails entirely** and replaced with a link to the n8n execution log. Review emails now contain **zero PHI** — only metadata (confidence scores, flagged issues, severity levels) and an execution log link accessible only to authorized n8n users.
 
-**Per-workflow evaluation recommended:**
+**Implementation:** The "Format Review Alert" node no longer truncates or includes `aiOutput`. Instead, it generates a "View Execution Log" button linking to:
+```
+https://simpledotbiz.app.n8n.cloud/workflow/{workflowId}/executions/{executionId}
+```
 
-| Workflow | PHI Risk in AI Output | Recommendation |
+**PHI risk status (all workflows):**
+
+| Workflow | Previous PHI Risk | Current Status |
 |---|---|---|
-| Call Transcribe, Flag, Forward | **HIGH** — AI output may reference caller names, medical conditions, case details | Consider reducing excerpt to 500 chars or replacing with n8n execution log link |
-| KOBE — Disability Content | **MEDIUM** — Generated content may reference disability types, legal claims | 2,000 chars likely acceptable; spot-check periodically |
-| Veo3 Video Prompt | **LOW** — Video scene descriptions typically do not contain PHI | 2,000 chars acceptable |
-
-If a workflow's AI output routinely contains PHI, the `notifyEmail` alert should include only enough context for the reviewer to locate and assess the output — not the full output itself. A link to the n8n execution log (accessible only to authorized users) satisfies the review need without transmitting PHI via email.
+| Call Transcribe, Flag, Forward | HIGH | **MITIGATED** — no PHI in email |
+| KOBE — Disability Content | MEDIUM | **MITIGATED** — no PHI in email |
+| Veo3 Video Prompt | LOW | **MITIGATED** — no PHI in email |
 
 **Reference:** §164.502(b) — Minimum Necessary Standard
 
 ---
 
-## 4. Failure Mode Documentation (Supplements Section 2)
+## 4. Failure Mode Handling (Supplements Section 2) — IMPLEMENTED
 
 **What happens when the validation sub-workflow fails:**
 
@@ -63,10 +75,21 @@ If this sub-workflow encounters an error (API timeout, Google Sheets write failu
 
 1. **Parent workflow is unaffected** — the Execute Sub-Workflow call either returns an error payload or times out, and the parent's downstream logic continues with the original AI output
 2. **No data is lost** from the parent workflow
-3. **The audit record for that execution will be missing** from the validation audit log
+3. **The failed execution is automatically backlogged** in the "Retry Queue" tab of the audit log spreadsheet
+4. **A failure alert email** is sent to the `notifyEmail` address from the parent workflow
 
-**Monitoring recommendation:** Periodically compare the validation audit log row count against parent workflow execution counts (available in n8n's execution log). A significant discrepancy indicates the sub-workflow has been failing silently. This check should be part of the monthly audit log review.
+**Automated retry system:** The **Validation Retry Queue** workflow (`workflows/Validation Retry Queue.json`) handles error recovery:
 
-**Accepted risk:** During a sub-workflow outage, parent workflows continue to operate without validation. This is by design (non-blocking architecture). If extended outages are observed, consider whether manual review should substitute until the sub-workflow is restored.
+| Component | Behavior |
+|---|---|
+| Error Trigger | Fires automatically when the sub-workflow fails; extracts original input parameters and logs to Retry Queue sheet |
+| Failure Alert | Sends email to `notifyEmail` notifying that the execution failed and has been queued for retry |
+| Scheduled Retry | Runs every 30 minutes; reads PENDING items from the Retry Queue sheet and re-executes the sub-workflow |
+| Retry Limit | Maximum 3 attempts per execution |
+| Escalation | After 3 failures, status is set to `FAILED_PERMANENT` and an escalation email is sent to `notifyEmail` |
+
+**Retry Queue sheet columns:** Timestamp, Original Execution ID, Workflow Name, Status (`PENDING` / `RESOLVED` / `FAILED_PERMANENT`), Retry Count, Last Retry, Error Message, plus all original sub-workflow input parameters for replay.
+
+**Setup requirement:** In the n8n UI, set the AI Validation Sub-Workflow's **Error Workflow** setting to point to the Validation Retry Queue workflow.
 
 **Reference:** §164.308(a)(7) — Contingency Plan

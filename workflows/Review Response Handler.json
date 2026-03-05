@@ -1,0 +1,317 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "={{$json[\"headers\"][\"content-type\"] ? 'POST' : 'GET'}}",
+        "path": "review-response",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        208
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000001",
+      "name": "Webhook",
+      "webhookId": "review-response-webhook-001"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-post-body",
+              "leftValue": "={{ $json.body.disposition }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        208
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000002",
+      "name": "Is POST?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $input.first().json.query || {};\nconst executionId = query.executionId || 'UNKNOWN';\nconst disposition = query.disposition || 'Confirmed OK';\n\nconst checked = function(val, target) {\n  return val === target ? 'checked' : '';\n};\n\nconst html = '<!DOCTYPE html>' +\n'<html>' +\n'<head>' +\n'  <meta charset=\"utf-8\">' +\n'  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">' +\n'  <title>AI Validation Review</title>' +\n'  <style>' +\n'    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }' +\n'    .header { background: #1a73e8; color: white; padding: 16px; border-radius: 8px 8px 0 0; }' +\n'    .header h2 { margin: 0; }' +\n'    .exec-id { font-family: monospace; font-size: 13px; opacity: 0.8; margin: 4px 0 0; }' +\n'    .form-body { padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; background: white; }' +\n'    label.field-label { display: block; margin-top: 16px; font-weight: bold; font-size: 14px; }' +\n'    input[type=\"text\"], textarea { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }' +\n'    textarea { height: 100px; resize: vertical; }' +\n'    .radio-group { margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap; }' +\n'    .radio-option { display: flex; align-items: center; gap: 6px; }' +\n'    .radio-option input { margin: 0; }' +\n'    .radio-option label { font-weight: normal; cursor: pointer; }' +\n'    button { margin-top: 24px; background: #1a73e8; color: white; border: none; padding: 12px 32px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }' +\n'    button:hover { background: #1557b0; }' +\n'  </style>' +\n'</head>' +\n'<body>' +\n'  <div class=\"header\">' +\n'    <h2>AI Validation Review Response</h2>' +\n'    <p class=\"exec-id\">Execution: ' + executionId + '</p>' +\n'  </div>' +\n'  <div class=\"form-body\">' +\n'    <form method=\"POST\">' +\n'      <input type=\"hidden\" name=\"executionId\" value=\"' + executionId + '\">' +\n'      <label class=\"field-label\">Disposition:</label>' +\n'      <div class=\"radio-group\">' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Confirmed OK\" id=\"d1\" ' + checked(disposition, 'Confirmed OK') + '><label for=\"d1\">Confirmed OK</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Corrected\" id=\"d2\" ' + checked(disposition, 'Corrected') + '><label for=\"d2\">Corrected</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Escalated\" id=\"d3\" ' + checked(disposition, 'Escalated') + '><label for=\"d3\">Escalated</label></div>' +\n'      </div>' +\n'      <label class=\"field-label\">Reviewed By:</label>' +\n'      <input type=\"text\" name=\"reviewedBy\" placeholder=\"Your name or email\" required>' +\n'      <label class=\"field-label\">Review Notes (optional):</label>' +\n'      <textarea name=\"notes\" placeholder=\"Any notes about this review...\"></textarea>' +\n'      <button type=\"submit\">Submit Review</button>' +\n'    </form>' +\n'  </div>' +\n'</body>' +\n'</html>';\n\nreturn [{ json: { responseBody: html } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        400
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000003",
+      "name": "Build Review Form"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.responseBody }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        400
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000004",
+      "name": "Serve Form"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\n\nreturn [{\n  json: {\n    executionId: (body.executionId || '').trim(),\n    disposition: body.disposition || 'Confirmed OK',\n    reviewedBy: (body.reviewedBy || '').trim(),\n    reviewNotes: (body.notes || '').trim(),\n    reviewDate: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        16
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000005",
+      "name": "Extract Submission"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
+          "mode": "list",
+          "cachedResultName": "n8n-ai-validation-audit-log ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Execution ID": "={{ $json.executionId }}",
+            "Reviewed By": "={{ $json.reviewedBy }}",
+            "Review Date": "={{ $json.reviewDate }}",
+            "Disposition": "={{ $json.disposition }}",
+            "Review Notes": "={{ $json.reviewNotes }}"
+          },
+          "matchingColumns": [
+            "Execution ID"
+          ],
+          "schema": [
+            {
+              "id": "Execution ID",
+              "displayName": "Execution ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reviewed By",
+              "displayName": "Reviewed By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Review Date",
+              "displayName": "Review Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Disposition",
+              "displayName": "Disposition",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Review Notes",
+              "displayName": "Review Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        320,
+        16
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000006",
+      "name": "Update Audit Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKCeMwlrPG6pXvK7",
+          "name": "Google Sheets Kayser"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const submission = $('Extract Submission').first().json;\n\nconst html = '<!DOCTYPE html>' +\n'<html><head>' +\n'<meta charset=\"utf-8\">' +\n'<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">' +\n'<title>Review Recorded</title>' +\n'<style>' +\n'  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }' +\n'  .success { background: #28a745; color: white; padding: 24px; border-radius: 8px; text-align: center; }' +\n'  .success h2 { margin: 0 0 12px; }' +\n'  .detail { font-size: 14px; opacity: 0.9; margin: 4px 0; }' +\n'  .close-note { margin-top: 16px; font-size: 13px; opacity: 0.8; }' +\n'</style>' +\n'</head><body>' +\n'<div class=\"success\">' +\n'  <h2>Review Recorded</h2>' +\n'  <p class=\"detail\">Execution: ' + submission.executionId + '</p>' +\n'  <p class=\"detail\">Disposition: ' + submission.disposition + '</p>' +\n'  <p class=\"detail\">Reviewed by: ' + submission.reviewedBy + '</p>' +\n'  <p class=\"close-note\">You may close this tab.</p>' +\n'</div>' +\n'</body></html>';\n\nreturn [{ json: { responseBody: html } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        16
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000007",
+      "name": "Build Confirmation"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.responseBody }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        16
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000008",
+      "name": "Send Confirmation"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Is POST?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is POST?": {
+      "main": [
+        [
+          {
+            "node": "Extract Submission",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Review Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Review Form": {
+      "main": [
+        [
+          {
+            "node": "Serve Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Submission": {
+      "main": [
+        [
+          {
+            "node": "Update Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Audit Log": {
+      "main": [
+        [
+          {
+            "node": "Build Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
+  }
+}

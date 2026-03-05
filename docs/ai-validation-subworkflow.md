@@ -171,6 +171,10 @@ Every validation (pass or fail) appends a row to the **AI Validation Audit Log**
 | Total Claims Checked | Count of all citations |
 | Reasoning | Validator's summary |
 | Execution ID | n8n execution ID |
+| Reviewed By | Name/email of reviewer (populated via Review Response Handler) |
+| Review Date | ISO timestamp of review submission |
+| Disposition | `Confirmed OK` / `Corrected` / `Escalated` |
+| Review Notes | Optional reviewer notes |
 
 ---
 
@@ -178,16 +182,19 @@ Every validation (pass or fail) appends a row to the **AI Validation Audit Log**
 
 When `needsHumanReview` is true, an HTML email is sent containing:
 
+- **Quick Review Action Buttons** — Confirmed OK (green), Corrected (yellow), Escalated (red)
 - Confidence score vs threshold
 - Review severity level (CRITICAL / HIGH / MODERATE)
 - All flagged issues with severity and recommendations
 - Source citations (up to 10)
-- Original AI output (first 2,000 characters)
+- **Link to n8n execution log** (no PHI in email — accessible only to authorized n8n users)
 - Execution ID for traceability
+
+Clicking a review button opens a web form (served by the Review Response Handler workflow) where the reviewer enters their name and optional notes. The form submission updates the audit log row directly.
 
 **Subject format:** `[AI REVIEW HIGH] KOBE - Hogan Smith Automation - Score 42/75`
 
-**Sent via:** `thomas@simple.biz` Gmail credential
+**Sent via:** Kayser Gmail credential
 **Sent to:** The `notifyEmail` address provided by the parent workflow
 
 ---
@@ -298,3 +305,26 @@ Insert between Gemini AI Agent and Respond to Webhook:
 - **Missing required fields:** The Prepare Validation Context node returns an error payload with `passed: true` and `overallAssessment: "ERROR"` so the parent workflow is never blocked.
 - **AI response parse failure:** The Parse Validation Result node falls back to a `confidenceScore: 50` with `overallAssessment: "REVIEW_NEEDED"`, ensuring unparseable responses get flagged for human review.
 - **AI Agent failure:** The Run Validation node has `retryOnFail: true` with a 5-second wait between retries.
+- **Complete sub-workflow failure:** If the sub-workflow crashes entirely, the **Validation Retry Queue** workflow (`workflows/Validation Retry Queue.json`) captures the error via n8n's Error Trigger, logs it to the "Retry Queue" sheet tab, and retries every 30 minutes (up to 3 attempts). After 3 failures, the status is set to `FAILED_PERMANENT` and an escalation email is sent to `notifyEmail`.
+
+---
+
+## Supporting Workflows
+
+### Review Response Handler
+
+**File:** `workflows/Review Response Handler.json`
+
+Serves a web form via webhook that allows reviewers to record their disposition directly from the review alert email. Updates the audit log row (matched on Execution ID) with: Reviewed By, Review Date, Disposition, Review Notes.
+
+**Webhook URL:** `https://simpledotbiz.app.n8n.cloud/webhook/review-response`
+
+### Validation Retry Queue
+
+**File:** `workflows/Validation Retry Queue.json`
+
+Two-flow workflow:
+1. **Error capture:** Triggered by the sub-workflow's Error Workflow setting. Logs failed executions to the "Retry Queue" sheet tab and sends a failure alert email.
+2. **Scheduled retry:** Runs every 30 minutes, reads PENDING items, retries the sub-workflow, and updates status (RESOLVED or FAILED_PERMANENT after 3 attempts).
+
+**Setup:** In the n8n UI, set the AI Validation Sub-Workflow's Error Workflow setting to point to this workflow.
