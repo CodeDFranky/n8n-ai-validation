@@ -7,10 +7,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1600,
-        296
+        -2416,
+        176
       ],
-      "id": "bd461c28-5298-45b9-bd79-03d1b74f9e04",
+      "id": "2171eb5c-2c12-4812-bdaa-4f221825eb4a",
       "name": "Sub-Workflow Trigger"
     },
     {
@@ -20,10 +20,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1376,
-        296
+        -2192,
+        176
       ],
-      "id": "eabce35b-d17d-4145-927c-d8812bee822a",
+      "id": "07f611c3-86b5-40c7-bccc-013f4d7299ce",
       "name": "Prepare Validation Context1"
     },
     {
@@ -33,10 +33,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1152,
-        296
+        -1968,
+        176
       ],
-      "id": "6225490e-8d28-451f-b117-a31d6ba38303",
+      "id": "84135cab-af88-420d-a39e-9a7f373d61a6",
       "name": "Build Validation Prompt1"
     },
     {
@@ -55,10 +55,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        -856,
-        520
+        -1664,
+        400
       ],
-      "id": "adc4d84f-12eb-4cf9-ba84-4258b817505d",
+      "id": "9b7bea82-22ff-467a-8851-ce615cee1b74",
       "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
@@ -76,10 +76,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        -928,
-        296
+        -1744,
+        176
       ],
-      "id": "e576c991-312e-491c-b70c-782cc5f64a21",
+      "id": "a0f7481a-49d1-4265-80cc-4ad2eeae7275",
       "name": "Run Validation1",
       "retryOnFail": true,
       "waitBetweenTries": 5000
@@ -91,10 +91,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -576,
-        296
+        -1392,
+        176
       ],
-      "id": "3b80a5c8-074d-44be-8e00-beb60192ee58",
+      "id": "f2fd312b-e04f-41b9-aecc-f890932d5099",
       "name": "Parse Validation Result1"
     },
     {
@@ -104,10 +104,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -352,
-        296
+        -1168,
+        176
       ],
-      "id": "950dedfa-0567-4ece-b6c5-4cea2e267f7f",
+      "id": "baa5d6ce-c060-48a9-b1b9-ef4ed812de66",
       "name": "Apply Strictness Threshold1"
     },
     {
@@ -116,9 +116,7 @@
         "documentId": {
           "__rl": true,
           "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
-          "mode": "list",
-          "cachedResultName": "n8n-ai-validation-audit-log ",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
+          "mode": "id"
         },
         "sheetName": {
           "__rl": true,
@@ -138,8 +136,8 @@
             "Overall Assessment": "={{ $json.overallAssessment }}",
             "Passed": "={{ $json.passed }}",
             "Strictness Threshold": "={{ $json.strictnessThreshold }}",
-            "Flagged Issues Count": "={{ $json.flaggedIssues }}",
-            "High Severity Count": "={{ $json.flaggedIssues[3].severity }}",
+            "Flagged Issues Count": "={{ $json.flaggedIssues.length }}",
+            "High Severity Count": "={{ $json.highSeverityCount }}",
             "Unsourced Claims": "={{ $json.unsourcedClaimCount }}",
             "Total Claims Checked": "={{ $json.totalClaimsChecked }}",
             "Reasoning": "={{ $json.reasoning }}",
@@ -272,6 +270,46 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reviewed By",
+              "displayName": "Reviewed By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Review Date",
+              "displayName": "Review Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Disposition",
+              "displayName": "Disposition",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Review Notes",
+              "displayName": "Review Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -282,10 +320,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -128,
-        296
+        -944,
+        176
       ],
-      "id": "f3210733-8747-4311-b1eb-df67e8d0dea9",
+      "id": "8842f95f-4193-4e52-b6da-4e829fb5a889",
       "name": "Write Audit Log1",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -322,10 +360,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        96,
-        296
+        -720,
+        176
       ],
-      "id": "1341c40c-fb59-4a3a-922c-311859e60ea7",
+      "id": "a8287dbe-e3e4-4cd2-9b0e-c29bfbb0659c",
       "name": "Route Decision1"
     },
     {
@@ -335,10 +373,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        320,
-        224
+        -496,
+        96
       ],
-      "id": "403dd731-59dd-47f1-b5e7-573a7c8b7ba0",
+      "id": "da272fa4-1dc4-47cd-b153-477bfbf1b61e",
       "name": "Format Review Alert1"
     },
     {
@@ -351,10 +389,10 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        544,
-        224
+        -272,
+        96
       ],
-      "id": "863c0c3f-c606-4632-a036-579cd1d96e54",
+      "id": "84f79c04-a879-4eca-a9a3-dda9096e3aa4",
       "name": "Send Review Email1",
       "webhookId": "3df3d7bb-9f47-46c9-bc5f-512e65fa4f94",
       "credentials": {
@@ -371,10 +409,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        768,
-        296
+        -48,
+        176
       ],
-      "id": "ec54b50e-1e54-471a-a1e9-37bd99142109",
+      "id": "51bd538c-b6d0-4104-82c8-9d4db5f35894",
       "name": "Return Results1"
     }
   ],
