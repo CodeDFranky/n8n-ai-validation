@@ -5,10 +5,10 @@
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
       "position": [
-        -800,
-        -200
+        1504,
+        96
       ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000001",
+      "id": "afe549d3-ad1c-47a9-bdd8-a2e1aa3ecf61",
       "name": "Error Trigger"
     },
     {
@@ -18,10 +18,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -560,
-        -200
+        1744,
+        96
       ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000002",
+      "id": "d269b98c-eaa0-4df0-bf3a-fbb604809893",
       "name": "Extract Error Context"
     },
     {
@@ -36,9 +36,10 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "Retry Queue",
+          "value": 1383436532,
           "mode": "list",
-          "cachedResultName": "Retry Queue"
+          "cachedResultName": "Retry Queue",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit#gid=1383436532"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -50,7 +51,7 @@
             "Retry Count": "={{ $json.retryCount }}",
             "Last Retry": "={{ $json.lastRetry }}",
             "Error Message": "={{ $json.errorMessage }}",
-            "workflowName": "={{ $json.paramWorkflowName }}",
+            "workflowName": "={{ $json.workflowName }}",
             "aiTaskType": "={{ $json.paramAiTaskType }}",
             "originalInput": "={{ $json.paramOriginalInput }}",
             "aiOutput": "={{ $json.paramAiOutput }}",
@@ -62,22 +63,160 @@
           },
           "matchingColumns": [],
           "schema": [
-            { "id": "Timestamp", "displayName": "Timestamp", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Original Execution ID", "displayName": "Original Execution ID", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Workflow Name", "displayName": "Workflow Name", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Status", "displayName": "Status", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Retry Count", "displayName": "Retry Count", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Last Retry", "displayName": "Last Retry", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Error Message", "displayName": "Error Message", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "workflowName", "displayName": "workflowName", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "aiTaskType", "displayName": "aiTaskType", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "originalInput", "displayName": "originalInput", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "aiOutput", "displayName": "aiOutput", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "aiModel", "displayName": "aiModel", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "domainContext", "displayName": "domainContext", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "strictnessThreshold", "displayName": "strictnessThreshold", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "notifyEmail", "displayName": "notifyEmail", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "customValidationInstructions", "displayName": "customValidationInstructions", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Original Execution ID",
+              "displayName": "Original Execution ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resolved Execution ID",
+              "displayName": "Resolved Execution ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Workflow Name",
+              "displayName": "Workflow Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Retry Count",
+              "displayName": "Retry Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Retry",
+              "displayName": "Last Retry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error Message",
+              "displayName": "Error Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflowName",
+              "displayName": "workflowName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aiTaskType",
+              "displayName": "aiTaskType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "originalInput",
+              "displayName": "originalInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aiOutput",
+              "displayName": "aiOutput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aiModel",
+              "displayName": "aiModel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "domainContext",
+              "displayName": "domainContext",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "strictnessThreshold",
+              "displayName": "strictnessThreshold",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notifyEmail",
+              "displayName": "notifyEmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customValidationInstructions",
+              "displayName": "customValidationInstructions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
@@ -87,10 +226,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -320,
-        -200
+        1984,
+        96
       ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000003",
+      "id": "5b889be7-65f3-4090-ada3-96b365318e3e",
       "name": "Log to Retry Queue",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -109,11 +248,12 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        -80,
-        -200
+        2224,
+        96
       ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000004",
+      "id": "78118ec0-6e75-446a-bb7a-5f4089a043db",
       "name": "Send Failure Alert",
+      "webhookId": "9be85505-86ea-4fe3-9d6d-19d1e5a26615",
       "credentials": {
         "gmailOAuth2": {
           "id": "qM7dhKTVMgRpFpv9",
@@ -135,202 +275,33 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -800,
-        200
+        1504,
+        496
       ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000005",
-      "name": "Every 30 Minutes"
+      "id": "ad7387c7-9bda-46d4-ba18-b1e3ad1c95e1",
+      "name": "Every 30 Minutes",
+      "disabled": true
     },
     {
       "parameters": {
-        "operation": "read",
-        "documentId": {
-          "__rl": true,
-          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
-          "mode": "list",
-          "cachedResultName": "n8n-ai-validation-audit-log ",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "Retry Queue",
-          "mode": "list",
-          "cachedResultName": "Retry Queue"
-        },
+        "sendTo": "={{ $('Check Retry Result').first().json.notifyEmail || 'francor@simple.biz' }}",
+        "subject": "=[VALIDATION ESCALATION] {{ $('Check Retry Result').first().json.workflowName }} - Permanent failure after 3 retries",
+        "message": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;\"><div style=\"background:#721c24;color:white;padding:16px;border-radius:8px 8px 0 0;\"><h2 style=\"margin:0;\">Validation Permanently Failed</h2><p style=\"margin:4px 0 0;\">3 retry attempts exhausted</p></div><div style=\"padding:16px;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;\"><table style=\"width:100%;border-collapse:collapse;\"><tr><td style=\"padding:8px;font-weight:bold;\">Workflow:</td><td style=\"padding:8px;\">{{ $('Check Retry Result').first().json.workflowName }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Original Execution ID:</td><td style=\"padding:8px;font-family:monospace;\">{{ $('Check Retry Result').first().json.originalExecutionId }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Total Attempts:</td><td style=\"padding:8px;\">3</td></tr></table><p style=\"margin-top:16px;padding:12px;background:#f8d7da;border-radius:4px;color:#721c24;\"><strong>Action Required:</strong> This AI output was never validated. Please manually review the output in the n8n execution log and investigate the root cause of the sub-workflow failure.</p></div></div>",
         "options": {}
       },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
       "position": [
-        -560,
-        200
+        3664,
+        400
       ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000006",
-      "name": "Read Retry Queue",
+      "id": "42d71cbf-94e1-4833-8dad-68d75de3302d",
+      "name": "Send Escalation Email",
+      "webhookId": "7196d6b9-afed-4d5d-b47a-28f60d4b46b7",
       "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "SKCeMwlrPG6pXvK7",
-          "name": "Google Sheets Kayser"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\nconst pending = items.filter(function(item) {\n  return item.json.Status === 'PENDING';\n});\n\nif (pending.length === 0) {\n  return [{ json: { noPending: true } }];\n}\n\nreturn pending;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -320,
-        200
-      ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000007",
-      "name": "Filter Pending"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "check-has-pending",
-              "leftValue": "={{ $json.noPending }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "notTrue",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        -80,
-        200
-      ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000008",
-      "name": "Has Pending?"
-    },
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        160,
-        200
-      ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000009",
-      "name": "Loop Items"
-    },
-    {
-      "parameters": {
-        "source": "database",
-        "workflowId": {
-          "__rl": true,
-          "value": "6duP007x1yFIH99y",
-          "mode": "id"
-        },
-        "fields": {
-          "values": [
-            { "name": "workflowName", "value": "={{ $json.workflowName }}" },
-            { "name": "aiTaskType", "value": "={{ $json.aiTaskType }}" },
-            { "name": "originalInput", "value": "={{ $json.originalInput }}" },
-            { "name": "aiOutput", "value": "={{ $json.aiOutput }}" },
-            { "name": "aiModel", "value": "={{ $json.aiModel }}" },
-            { "name": "domainContext", "value": "={{ $json.domainContext }}" },
-            { "name": "strictnessThreshold", "value": "={{ $json.strictnessThreshold }}" },
-            { "name": "notifyEmail", "value": "={{ $json.notifyEmail }}" },
-            { "name": "customValidationInstructions", "value": "={{ $json.customValidationInstructions }}" }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        400,
-        200
-      ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000010",
-      "name": "Retry Sub-Workflow",
-      "continueOnFail": true
-    },
-    {
-      "parameters": {
-        "jsCode": "const retryItem = $('Loop Items').first().json;\nconst subResult = $input.first().json;\n\nvar currentRetryCount = parseInt(retryItem['Retry Count'] || retryItem.retryCount || 0) + 1;\nvar originalExecutionId = retryItem['Original Execution ID'] || retryItem.originalExecutionId || '';\nvar notifyEmail = retryItem.notifyEmail || retryItem.paramNotifyEmail || '';\nvar workflowName = retryItem['Workflow Name'] || retryItem.workflowName || '';\n\n// Check if the sub-workflow succeeded\nvar succeeded = false;\nif (subResult && subResult.confidenceScore != null && !subResult.error) {\n  succeeded = true;\n}\n\nvar newStatus;\nvar needsEscalation = false;\nif (succeeded) {\n  newStatus = 'RESOLVED';\n} else if (currentRetryCount >= 3) {\n  newStatus = 'FAILED_PERMANENT';\n  needsEscalation = true;\n} else {\n  newStatus = 'PENDING';\n}\n\nreturn [{\n  json: {\n    originalExecutionId: originalExecutionId,\n    status: newStatus,\n    retryCount: currentRetryCount,\n    lastRetry: new Date().toISOString(),\n    needsEscalation: needsEscalation,\n    notifyEmail: notifyEmail,\n    workflowName: workflowName\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        640,
-        200
-      ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000011",
-      "name": "Check Retry Result"
-    },
-    {
-      "parameters": {
-        "operation": "update",
-        "documentId": {
-          "__rl": true,
-          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
-          "mode": "list",
-          "cachedResultName": "n8n-ai-validation-audit-log ",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "Retry Queue",
-          "mode": "list",
-          "cachedResultName": "Retry Queue"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Original Execution ID": "={{ $json.originalExecutionId }}",
-            "Status": "={{ $json.status }}",
-            "Retry Count": "={{ $json.retryCount }}",
-            "Last Retry": "={{ $json.lastRetry }}"
-          },
-          "matchingColumns": [
-            "Original Execution ID"
-          ],
-          "schema": [
-            { "id": "Original Execution ID", "displayName": "Original Execution ID", "required": false, "defaultMatch": true, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Status", "displayName": "Status", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Retry Count", "displayName": "Retry Count", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "Last Retry", "displayName": "Last Retry", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        880,
-        200
-      ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000012",
-      "name": "Update Queue Status",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "SKCeMwlrPG6pXvK7",
-          "name": "Google Sheets Kayser"
+        "gmailOAuth2": {
+          "id": "qM7dhKTVMgRpFpv9",
+          "name": "Kayser Gmail"
         }
       }
     },
@@ -362,33 +333,378 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1120,
-        200
+        3424,
+        496
       ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000013",
+      "id": "be4cf8d4-7210-48d0-adb8-187d64d908eb",
       "name": "Needs Escalation?"
     },
     {
       "parameters": {
-        "sendTo": "={{ $('Check Retry Result').first().json.notifyEmail || 'francor@simple.biz' }}",
-        "subject": "=[VALIDATION ESCALATION] {{ $('Check Retry Result').first().json.workflowName }} - Permanent failure after 3 retries",
-        "message": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;\"><div style=\"background:#721c24;color:white;padding:16px;border-radius:8px 8px 0 0;\"><h2 style=\"margin:0;\">Validation Permanently Failed</h2><p style=\"margin:4px 0 0;\">3 retry attempts exhausted</p></div><div style=\"padding:16px;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;\"><table style=\"width:100%;border-collapse:collapse;\"><tr><td style=\"padding:8px;font-weight:bold;\">Workflow:</td><td style=\"padding:8px;\">{{ $('Check Retry Result').first().json.workflowName }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Original Execution ID:</td><td style=\"padding:8px;font-family:monospace;\">{{ $('Check Retry Result').first().json.originalExecutionId }}</td></tr><tr><td style=\"padding:8px;font-weight:bold;\">Total Attempts:</td><td style=\"padding:8px;\">3</td></tr></table><p style=\"margin-top:16px;padding:12px;background:#f8d7da;border-radius:4px;color:#721c24;\"><strong>Action Required:</strong> This AI output was never validated. Please manually review the output in the n8n execution log and investigate the root cause of the sub-workflow failure.</p></div></div>",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
+          "mode": "list",
+          "cachedResultName": "n8n-ai-validation-audit-log ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1383436532,
+          "mode": "list",
+          "cachedResultName": "Retry Queue",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit#gid=1383436532"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Original Execution ID": "={{ $json.originalExecutionId }}",
+            "Status": "={{ $json.status }}",
+            "Retry Count": "={{ $json.retryCount }}",
+            "Last Retry": "={{ $json.lastRetry }}",
+            "Resolved Execution ID": "={{ $json.resolvedExecutionId }}"
+          },
+          "matchingColumns": [
+            "Original Execution ID"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Original Execution ID",
+              "displayName": "Original Execution ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Workflow Name",
+              "displayName": "Workflow Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Retry Count",
+              "displayName": "Retry Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Retry",
+              "displayName": "Last Retry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Resolved Execution ID",
+              "displayName": "Resolved Execution ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Error Message",
+              "displayName": "Error Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "workflowName",
+              "displayName": "workflowName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "aiTaskType",
+              "displayName": "aiTaskType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "originalInput",
+              "displayName": "originalInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "aiOutput",
+              "displayName": "aiOutput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "aiModel",
+              "displayName": "aiModel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "domainContext",
+              "displayName": "domainContext",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "strictnessThreshold",
+              "displayName": "strictnessThreshold",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "notifyEmail",
+              "displayName": "notifyEmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "customValidationInstructions",
+              "displayName": "customValidationInstructions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
         "options": {}
       },
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.1,
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
       "position": [
-        1360,
-        100
+        3184,
+        496
       ],
-      "id": "b1c2d3e4-f5a6-7890-abcd-200000000014",
-      "name": "Send Escalation Email",
+      "id": "71a82c6e-52aa-4223-9a2b-4f4bfa6feeda",
+      "name": "Update Queue Status",
       "credentials": {
-        "gmailOAuth2": {
-          "id": "qM7dhKTVMgRpFpv9",
-          "name": "Kayser Gmail"
+        "googleSheetsOAuth2Api": {
+          "id": "SKCeMwlrPG6pXvK7",
+          "name": "Google Sheets Kayser"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "const retryItem = $('Loop Items').first().json;\nconst subResult = $input.first().json;\n\nvar currentRetryCount = parseInt(retryItem['Retry Count'] || retryItem.retryCount || 0) + 1;\nvar originalExecutionId = retryItem['Original Execution ID'] || retryItem.originalExecutionId || '';\nvar notifyEmail = retryItem.notifyEmail || retryItem.paramNotifyEmail || '';\nvar workflowName = retryItem['Workflow Name'] || retryItem.workflowName || '';\n\n// Check if the sub-workflow succeeded\nvar succeeded = false;\nif (subResult && subResult.confidenceScore != null && !subResult.error) {\n  succeeded = true;\n}\n\nvar newStatus;\nvar needsEscalation = false;\nif (succeeded) {\n  newStatus = 'RESOLVED';\n} else if (currentRetryCount >= 3) {\n  newStatus = 'FAILED_PERMANENT';\n  needsEscalation = true;\n} else {\n  newStatus = 'PENDING';\n}\n\nreturn [{\n  json: {\n    originalExecutionId: originalExecutionId,\n    status: newStatus,\n    retryCount: currentRetryCount,\n    lastRetry: new Date().toISOString(),\n    resolvedExecutionId: succeeded ? (subResult.executionId || '') : '',\n    needsEscalation: needsEscalation,\n    notifyEmail: notifyEmail,\n    workflowName: workflowName\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2944,
+        496
+      ],
+      "id": "c6cf6c50-d450-4ff3-b1bd-3cf09a1539fa",
+      "name": "Check Retry Result"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "6duP007x1yFIH99y",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2704,
+        496
+      ],
+      "id": "7ad517c9-4de0-4c19-89af-56cf3d962d6e",
+      "name": "Retry Sub-Workflow",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2464,
+        496
+      ],
+      "id": "5f967cc9-c9bb-43cb-ac7e-f4ce0fce1798",
+      "name": "Loop Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst pending = items.filter(function(item) {\n  return item.json.Status === 'PENDING';\n});\n\nif (pending.length === 0) {\n  return [{ json: { noPending: true } }];\n}\n\nreturn pending;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        496
+      ],
+      "id": "b08282c6-ada6-4375-a878-5543e27ece1f",
+      "name": "Filter Pending"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
+          "mode": "list",
+          "cachedResultName": "n8n-ai-validation-audit-log ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1383436532,
+          "mode": "list",
+          "cachedResultName": "Retry Queue",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit#gid=1383436532"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1744,
+        496
+      ],
+      "id": "d9d8373d-789b-4ca3-8d7f-98e349bf87e5",
+      "name": "Read Retry Queue",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKCeMwlrPG6pXvK7",
+          "name": "Google Sheets Kayser"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6e80d65f-69f0-4b13-9cc1-2650119cca30",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "PENDING",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2176,
+        496
+      ],
+      "id": "fcd526b5-1d24-42d8-876a-be22db6c2c1e",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        576
+      ],
+      "id": "3d0bc8d8-b60f-4dea-945b-04d56de8c9a3",
+      "name": "When clicking ‘Execute workflow’"
     }
   ],
   "connections": {
@@ -436,79 +752,11 @@
         ]
       ]
     },
-    "Read Retry Queue": {
-      "main": [
-        [
-          {
-            "node": "Filter Pending",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Filter Pending": {
-      "main": [
-        [
-          {
-            "node": "Has Pending?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Has Pending?": {
+    "Send Escalation Email": {
       "main": [
         [
           {
             "node": "Loop Items",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "Loop Items": {
-      "main": [
-        [],
-        [
-          {
-            "node": "Retry Sub-Workflow",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Retry Sub-Workflow": {
-      "main": [
-        [
-          {
-            "node": "Check Retry Result",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Retry Result": {
-      "main": [
-        [
-          {
-            "node": "Update Queue Status",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Update Queue Status": {
-      "main": [
-        [
-          {
-            "node": "Needs Escalation?",
             "type": "main",
             "index": 0
           }
@@ -533,7 +781,74 @@
         ]
       ]
     },
-    "Send Escalation Email": {
+    "Update Queue Status": {
+      "main": [
+        [
+          {
+            "node": "Needs Escalation?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Retry Result": {
+      "main": [
+        [
+          {
+            "node": "Update Queue Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Sub-Workflow": {
+      "main": [
+        [
+          {
+            "node": "Check Retry Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Retry Sub-Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Pending": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Retry Queue": {
+      "main": [
+        [
+          {
+            "node": "Filter Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
       "main": [
         [
           {
@@ -545,7 +860,48 @@
       ]
     }
   },
-  "pinData": {},
+  "pinData": {
+    "Error Trigger": [
+      {
+        "execution": {
+          "id": "test-exec-001",
+          "error": {
+            "message": "Simulated API timeout on Run Validation node"
+          },
+          "lastNodeExecuted": "Run Validation1",
+          "data": {
+            "resultData": {
+              "runData": {
+                "Sub-Workflow Trigger": [
+                  {
+                    "data": {
+                      "main": [
+                        [
+                          {
+                            "json": {
+                              "workflowName": "KOBE - Hogan Smith Automation",
+                              "aiTaskType": "GENERATION",
+                              "originalInput": "What is SSDI back pay?",
+                              "aiOutput": "SSDI back pay is the money owed to you.",
+                              "aiModel": "gpt-4.1-mini",
+                              "domainContext": "disability law",
+                              "strictnessThreshold": 80,
+                              "notifyEmail": "francor@simple.biz",
+                              "customValidationInstructions": ""
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
   "meta": {
     "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
   }
