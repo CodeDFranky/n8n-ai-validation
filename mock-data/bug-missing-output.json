@@ -1,0 +1,14 @@
+[
+  {
+    "json": {
+      "workflowName": "KOBE - Hogan Smith Automation",
+      "aiTaskType": "GENERATION",
+      "originalInput": "What are the work credit requirements for SSDI in Arkansas?",
+      "aiOutput": "",
+      "aiModel": "gpt-4.1-mini",
+      "domainContext": "disability law",
+      "strictnessThreshold": 75,
+      "notifyEmail": "francor@simple.biz"
+    }
+  }
+]

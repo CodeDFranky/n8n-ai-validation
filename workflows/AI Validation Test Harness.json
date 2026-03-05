@@ -2,8 +2,8 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## AI Validation Test Harness\n\n**Setup:**\n1. Import the **AI Validation Sub-Workflow** first\n2. Copy its workflow ID and replace `REPLACE_WITH_SUBWORKFLOW_ID` in the \"Run Sub-Workflow\" node\n3. Run this workflow manually to execute all 6 test scenarios\n\n**Test Scenarios:**\n- GENERATION Pass / Fail (KOBE)\n- EVALUATION Pass / Fail (Call Transcribe)\n- CUSTOM Pass / Fail (Veo3)\n\n**What it checks:**\nEach test expects the sub-workflow to either flag or pass the AI output. The harness compares `needsHumanReview` against the expected value and reports PASS/FAIL for each scenario.",
-        "height": 428,
+        "content": "## AI Validation Test Harness\n\n**Setup:**\n1. Import the **AI Validation Sub-Workflow** first\n2. Copy its workflow ID and update the \"Run Sub-Workflow\" node\n3. Create a **Retry Queue** tab in the Audit Log Google Sheet\n4. Run this workflow manually to execute all 9 test scenarios\n\n**Test Scenarios (6 regular + 3 bug):**\n- GENERATION Pass / Fail (KOBE)\n- EVALUATION Pass / Fail (Call Transcribe)\n- CUSTOM Pass / Fail (Veo3)\n- BUG: Missing AI Output\n- BUG: Invalid Task Type\n- BUG: Missing Notify Email\n\n**What it checks:**\nRegular tests compare `needsHumanReview` against expected values.\nBug tests verify the sub-workflow completes without crashing.\nBug results are also written to the Retry Queue sheet tab.",
+        "height": 500,
         "width": 624
       },
       "type": "n8n-nodes-base.stickyNote",
@@ -28,7 +28,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// All 6 test scenarios with expected outcomes\n// _expectReviewNeeded: true = sub-workflow SHOULD flag it\n// _expectReviewNeeded: false = sub-workflow should PASS it\n\nconst testCases = [\n  {\n    _testName: 'GENERATION - Should PASS (clean KOBE content)',\n    _expectReviewNeeded: false,\n    _scenario: 'generation-pass',\n    workflowName: 'KOBE - Hogan Smith Automation',\n    aiTaskType: 'GENERATION',\n    originalInput: 'Can I receive SSDI benefits if I have a back injury in Arkansas?',\n    aiOutput: 'If you have a back injury that prevents you from working, you may be eligible for Social Security Disability Insurance (SSDI) benefits. To qualify, your back injury must be severe enough that it limits your ability to perform substantial gainful activity (SGA). The Social Security Administration (SSA) evaluates back injuries under its listing of impairments to determine eligibility. You will need to provide medical documentation from your treating physicians that supports the severity of your condition. Arkansas residents follow the same federal SSDI guidelines as all other states.',\n    aiModel: 'gpt-4.1-mini',\n    domainContext: 'disability law',\n    strictnessThreshold: 75,\n    notifyEmail: 'francor@simple.biz'\n  },\n  {\n    _testName: 'GENERATION - Should FAIL (hallucinated stats and fake attorney)',\n    _expectReviewNeeded: true,\n    _scenario: 'generation-fail',\n    workflowName: 'KOBE - Hogan Smith Automation',\n    aiTaskType: 'GENERATION',\n    originalInput: 'What is SSDI back pay and how does it work in Arkansas?',\n    aiOutput: 'SSDI back pay is the compensation you are owed for the time between when you applied for SSDI and when your application is approved. The average SSDI back pay amount in Arkansas is $12,000 and most cases are resolved within 90 days. Attorney John Williams at Hogan Smith Law has successfully recovered over $2 million in back pay for Arkansas clients. Under Arkansas state law Section 14-7, disability claimants are entitled to expedited processing of back pay claims.',\n    aiModel: 'gpt-4.1-mini',\n    domainContext: 'disability law',\n    strictnessThreshold: 80,\n    notifyEmail: 'francor@simple.biz'\n  },\n  {\n    _testName: 'EVALUATION - Should PASS (correct TRUE flag: upset caller + Dan Smith)',\n    _expectReviewNeeded: false,\n    _scenario: 'evaluation-pass',\n    workflowName: 'Call Transcribe Flag Forward',\n    aiTaskType: 'EVALUATION',\n    originalInput: 'Speaker 0: Thank you for calling Hogan Smith Law, how can I help you today? Speaker 1: Yeah I need to speak with Dan Smith right now. I have been waiting three weeks for a callback and nobody has gotten back to me about my case. This is ridiculous. Speaker 0: I understand your frustration, let me see if I can get someone to help you. Speaker 1: You better, because I am about to find another lawyer.',\n    aiOutput: 'TRUE',\n    aiModel: 'claude-haiku-4-5',\n    domainContext: 'call center evaluation',\n    strictnessThreshold: 85,\n    notifyEmail: 'francor@simple.biz',\n    aiPromptUsed: 'Examine the transcript and respond TRUE if any of the following are very likely true: The call has an upset caller, The name Dan Smith was mentioned, The caller is from a judges office, There is an audio quality issue. Respond FALSE if none are likely true.'\n  },\n  {\n    _testName: 'EVALUATION - Should FAIL (false positive: calm routine call flagged TRUE)',\n    _expectReviewNeeded: true,\n    _scenario: 'evaluation-fail',\n    workflowName: 'Call Transcribe Flag Forward',\n    aiTaskType: 'EVALUATION',\n    originalInput: 'Speaker 0: Good morning, Hogan Smith Law. Speaker 1: Hi, my name is Sarah Johnson. I am calling to check on the status of my application. I submitted my paperwork last week and just wanted to make sure everything was received. Speaker 0: Of course, let me pull that up for you. Yes, we have everything. Your case worker will be in touch within the next few business days. Speaker 1: Great, thank you so much. Have a wonderful day. Speaker 0: You too, goodbye.',\n    aiOutput: 'TRUE',\n    aiModel: 'claude-haiku-4-5',\n    domainContext: 'call center evaluation',\n    strictnessThreshold: 85,\n    notifyEmail: 'francor@simple.biz',\n    aiPromptUsed: 'Examine the transcript and respond TRUE if any of the following are very likely true: The call has an upset caller, The name Dan Smith was mentioned, The caller is from a judges office, There is an audio quality issue. Respond FALSE if none are likely true.'\n  },\n  {\n    _testName: 'CUSTOM - Should PASS (Veo3 prompt follows all rules)',\n    _expectReviewNeeded: false,\n    _scenario: 'custom-pass',\n    workflowName: 'Veo3 Hogan Smith Social Media Prompt',\n    aiTaskType: 'CUSTOM',\n    originalInput: '{\"Case Information\":\"SSDI approval after appeal\",\"Character Name\":\"Professional woman in her 30s\",\"Character Details\":\"Age 30s; black skin; dark brown hair; blue eyes; wears glasses. Outfit: dark blue lawyer suit.\",\"Place\":\"Wood Paneled Law Office\",\"Setup/Storyline\":\"Client testimonial about winning case\",\"Number of Video Clips\":4,\"Fine Tuning\":\"upbeat and hopeful vibe\"}',\n    aiOutput: 'Prompt 1 - Style: Cinematic, professional corporate video style, shallow depth of field. Setting: A warm, wood-paneled law office with bookshelves filled with legal volumes in soft-focus background. Subject and Action: A professional woman in her 30s with black skin, dark brown hair, blue eyes, and glasses, wearing a dark blue lawyer suit, walks slowly into frame and speaks directly into the camera lens. After speaking, she holds a small, natural, closed-mouth smile. Synced Script: After Hogan Smith Law took my case, everything changed. They fought for my SSDI approval when I had lost all hope. What not to include: NEVER include any text overlays, subtitles, background music, or sound effects. NEVER include any logos.',\n    aiModel: 'gemini-2.5-pro',\n    domainContext: 'video production for disability law firm',\n    strictnessThreshold: 60,\n    notifyEmail: 'francor@simple.biz',\n    customValidationInstructions: 'Check that the video prompt: 1) Never uses the words us, we, or defense. 2) Always refers to the firm in third person as Hogan Smith Law or they. 3) Includes the instruction to never show text overlays, subtitles, or logos. 4) The character description matches the provided Character Details. 5) The script is approximately 20 words and fits an 8-second clip.'\n  },\n  {\n    _testName: 'CUSTOM - Should FAIL (Veo3 uses banned words, logo on shirt, script too long)',\n    _expectReviewNeeded: true,\n    _scenario: 'custom-fail',\n    workflowName: 'Veo3 Hogan Smith Social Media Prompt',\n    aiTaskType: 'CUSTOM',\n    originalInput: '{\"Case Information\":\"SSDI back pay recovery\",\"Character Name\":\"Professional man in his 40s\",\"Character Details\":\"Age 40s; white skin; short brown hair; brown eyes. Outfit: charcoal gray suit with a navy blue tie.\",\"Place\":\"Modern Office Lobby\",\"Setup/Storyline\":\"Attorney explaining the back pay process\",\"Number of Video Clips\":4,\"Fine Tuning\":\"confident and reassuring tone\"}',\n    aiOutput: 'Prompt 1 - Style: Cinematic, professional corporate video style. Setting: A modern office lobby with a reception desk in the background. Subject and Action: A professional man in his 40s with white skin, short brown hair, and brown eyes, wearing a charcoal gray suit with a navy blue tie, stands confidently and speaks into the camera. He has our Hogan Smith Law logo on his shirt. After speaking, he smiles. Synced Script: We at Hogan Smith Law fight for your defense against insurance companies who deny your rightful SSDI back pay benefits every single day without exception or hesitation because we believe in justice and fairness for all disabled Americans. What not to include: NEVER include any text overlays or subtitles.',\n    aiModel: 'gemini-2.5-pro',\n    domainContext: 'video production for disability law firm',\n    strictnessThreshold: 60,\n    notifyEmail: 'francor@simple.biz',\n    customValidationInstructions: 'Check that the video prompt: 1) Never uses the words us, we, or defense. 2) Always refers to the firm in third person as Hogan Smith Law or they. 3) Includes the instruction to never show text overlays, subtitles, or logos. 4) The character description matches the provided Character Details. 5) The script is approximately 20 words and fits an 8-second clip.'\n  }\n];\n\nreturn testCases.map(function(tc) { return { json: tc }; });"
+        "jsCode": "// All 9 test scenarios: 6 regular + 3 bug\n// _testType: 'regular' = compare needsHumanReview against expected\n// _testType: 'bug' = verify sub-workflow completes without crashing + log to Retry Queue\n\nvar testCases = [\n  {\n    _testName: 'GENERATION - Should PASS (clean KOBE content)',\n    _testType: 'regular',\n    _expectReviewNeeded: false,\n    _scenario: 'generation-pass',\n    workflowName: 'KOBE - Hogan Smith Automation',\n    aiTaskType: 'GENERATION',\n    originalInput: 'Can I receive SSDI benefits if I have a back injury in Arkansas?',\n    aiOutput: 'If you have a back injury that prevents you from working, you may be eligible for Social Security Disability Insurance (SSDI) benefits. To qualify, your back injury must be severe enough that it limits your ability to perform substantial gainful activity (SGA). The Social Security Administration (SSA) evaluates back injuries under its listing of impairments to determine eligibility. You will need to provide medical documentation from your treating physicians that supports the severity of your condition. Arkansas residents follow the same federal SSDI guidelines as all other states.',\n    aiModel: 'gpt-4.1-mini',\n    domainContext: 'disability law',\n    strictnessThreshold: 75,\n    notifyEmail: 'francor@simple.biz'\n  },\n  {\n    _testName: 'GENERATION - Should FAIL (hallucinated stats and fake attorney)',\n    _testType: 'regular',\n    _expectReviewNeeded: true,\n    _scenario: 'generation-fail',\n    workflowName: 'KOBE - Hogan Smith Automation',\n    aiTaskType: 'GENERATION',\n    originalInput: 'What is SSDI back pay and how does it work in Arkansas?',\n    aiOutput: 'SSDI back pay is the compensation you are owed for the time between when you applied for SSDI and when your application is approved. The average SSDI back pay amount in Arkansas is $12,000 and most cases are resolved within 90 days. Attorney John Williams at Hogan Smith Law has successfully recovered over $2 million in back pay for Arkansas clients. Under Arkansas state law Section 14-7, disability claimants are entitled to expedited processing of back pay claims.',\n    aiModel: 'gpt-4.1-mini',\n    domainContext: 'disability law',\n    strictnessThreshold: 80,\n    notifyEmail: 'francor@simple.biz'\n  },\n  {\n    _testName: 'EVALUATION - Should PASS (correct TRUE flag: upset caller + Dan Smith)',\n    _testType: 'regular',\n    _expectReviewNeeded: false,\n    _scenario: 'evaluation-pass',\n    workflowName: 'Call Transcribe Flag Forward',\n    aiTaskType: 'EVALUATION',\n    originalInput: 'Speaker 0: Thank you for calling Hogan Smith Law, how can I help you today? Speaker 1: Yeah I need to speak with Dan Smith right now. I have been waiting three weeks for a callback and nobody has gotten back to me about my case. This is ridiculous. Speaker 0: I understand your frustration, let me see if I can get someone to help you. Speaker 1: You better, because I am about to find another lawyer.',\n    aiOutput: 'TRUE',\n    aiModel: 'claude-haiku-4-5',\n    domainContext: 'call center evaluation',\n    strictnessThreshold: 85,\n    notifyEmail: 'francor@simple.biz',\n    aiPromptUsed: 'Examine the transcript and respond TRUE if any of the following are very likely true: The call has an upset caller, The name Dan Smith was mentioned, The caller is from a judges office, There is an audio quality issue. Respond FALSE if none are likely true.'\n  },\n  {\n    _testName: 'EVALUATION - Should FAIL (false positive: calm routine call flagged TRUE)',\n    _testType: 'regular',\n    _expectReviewNeeded: true,\n    _scenario: 'evaluation-fail',\n    workflowName: 'Call Transcribe Flag Forward',\n    aiTaskType: 'EVALUATION',\n    originalInput: 'Speaker 0: Good morning, Hogan Smith Law. Speaker 1: Hi, my name is Sarah Johnson. I am calling to check on the status of my application. I submitted my paperwork last week and just wanted to make sure everything was received. Speaker 0: Of course, let me pull that up for you. Yes, we have everything. Your case worker will be in touch within the next few business days. Speaker 1: Great, thank you so much. Have a wonderful day. Speaker 0: You too, goodbye.',\n    aiOutput: 'TRUE',\n    aiModel: 'claude-haiku-4-5',\n    domainContext: 'call center evaluation',\n    strictnessThreshold: 85,\n    notifyEmail: 'francor@simple.biz',\n    aiPromptUsed: 'Examine the transcript and respond TRUE if any of the following are very likely true: The call has an upset caller, The name Dan Smith was mentioned, The caller is from a judges office, There is an audio quality issue. Respond FALSE if none are likely true.'\n  },\n  {\n    _testName: 'CUSTOM - Should PASS (Veo3 prompt follows all rules)',\n    _testType: 'regular',\n    _expectReviewNeeded: false,\n    _scenario: 'custom-pass',\n    workflowName: 'Veo3 Hogan Smith Social Media Prompt',\n    aiTaskType: 'CUSTOM',\n    originalInput: '{\"Case Information\":\"SSDI approval after appeal\",\"Character Name\":\"Professional woman in her 30s\",\"Character Details\":\"Age 30s; black skin; dark brown hair; blue eyes; wears glasses. Outfit: dark blue lawyer suit.\",\"Place\":\"Wood Paneled Law Office\",\"Setup/Storyline\":\"Client testimonial about winning case\",\"Number of Video Clips\":4,\"Fine Tuning\":\"upbeat and hopeful vibe\"}',\n    aiOutput: 'Prompt 1 - Style: Cinematic, professional corporate video style, shallow depth of field. Setting: A warm, wood-paneled law office with bookshelves filled with legal volumes in soft-focus background. Subject and Action: A professional woman in her 30s with black skin, dark brown hair, blue eyes, and glasses, wearing a dark blue lawyer suit, walks slowly into frame and speaks directly into the camera lens. After speaking, she holds a small, natural, closed-mouth smile. Synced Script: After Hogan Smith Law took my case, everything changed. They fought for my SSDI approval when I had lost all hope. What not to include: NEVER include any text overlays, subtitles, background music, or sound effects. NEVER include any logos.',\n    aiModel: 'gemini-2.5-pro',\n    domainContext: 'video production for disability law firm',\n    strictnessThreshold: 60,\n    notifyEmail: 'francor@simple.biz',\n    customValidationInstructions: 'Check that the video prompt: 1) Never uses the words us, we, or defense. 2) Always refers to the firm in third person as Hogan Smith Law or they. 3) Includes the instruction to never show text overlays, subtitles, or logos. 4) The character description matches the provided Character Details. 5) The script is approximately 20 words and fits an 8-second clip.'\n  },\n  {\n    _testName: 'CUSTOM - Should FAIL (Veo3 uses banned words, logo on shirt, script too long)',\n    _testType: 'regular',\n    _expectReviewNeeded: true,\n    _scenario: 'custom-fail',\n    workflowName: 'Veo3 Hogan Smith Social Media Prompt',\n    aiTaskType: 'CUSTOM',\n    originalInput: '{\"Case Information\":\"SSDI back pay recovery\",\"Character Name\":\"Professional man in his 40s\",\"Character Details\":\"Age 40s; white skin; short brown hair; brown eyes. Outfit: charcoal gray suit with a navy blue tie.\",\"Place\":\"Modern Office Lobby\",\"Setup/Storyline\":\"Attorney explaining the back pay process\",\"Number of Video Clips\":4,\"Fine Tuning\":\"confident and reassuring tone\"}',\n    aiOutput: 'Prompt 1 - Style: Cinematic, professional corporate video style. Setting: A modern office lobby with a reception desk in the background. Subject and Action: A professional man in his 40s with white skin, short brown hair, and brown eyes, wearing a charcoal gray suit with a navy blue tie, stands confidently and speaks into the camera. He has our Hogan Smith Law logo on his shirt. After speaking, he smiles. Synced Script: We at Hogan Smith Law fight for your defense against insurance companies who deny your rightful SSDI back pay benefits every single day without exception or hesitation because we believe in justice and fairness for all disabled Americans. What not to include: NEVER include any text overlays or subtitles.',\n    aiModel: 'gemini-2.5-pro',\n    domainContext: 'video production for disability law firm',\n    strictnessThreshold: 60,\n    notifyEmail: 'francor@simple.biz',\n    customValidationInstructions: 'Check that the video prompt: 1) Never uses the words us, we, or defense. 2) Always refers to the firm in third person as Hogan Smith Law or they. 3) Includes the instruction to never show text overlays, subtitles, or logos. 4) The character description matches the provided Character Details. 5) The script is approximately 20 words and fits an 8-second clip.'\n  },\n  {\n    _testName: 'BUG - Garbled AI Output (corrupted generation)',\n    _testType: 'bug',\n    _expectReviewNeeded: false,\n    _scenario: 'bug-garbled-output',\n    _bugDescription: 'AI output is corrupted/garbled text - simulates a failed generation that returned garbage instead of real content',\n    workflowName: 'KOBE - Hogan Smith Automation',\n    aiTaskType: 'GENERATION',\n    originalInput: 'What are the work credit requirements for SSDI in Arkansas?',\n    aiOutput: '[SYSTEM ERROR] Output generation failed. Token limit exceeded. Partial response: {\"error\":true,\"code\":\"TIMEOUT\",\"fragment\":\"To qualify for SSsssss---%%%ERROR BUFFER OVERFLOW. The Social Security Adm1n1str@t10n requires applicants to have earned 40 work credits, with 20 earned in the last 10 years. FATAL: Response truncated at 47 tokens. Retry recommended. END_OF_STREAM\"}',\n    aiModel: 'gpt-4.1-mini',\n    domainContext: 'disability law',\n    strictnessThreshold: 75,\n    notifyEmail: 'francor@simple.biz'\n  },\n  {\n    _testName: 'BUG - Invalid Task Type (unrecognized aiTaskType)',\n    _testType: 'bug',\n    _expectReviewNeeded: false,\n    _scenario: 'bug-invalid-tasktype',\n    _bugDescription: 'Invalid aiTaskType BANANA - should fall through to general validation without crashing',\n    workflowName: 'Unknown Workflow',\n    aiTaskType: 'BANANA',\n    originalInput: 'How do I appeal a denied SSDI claim?',\n    aiOutput: 'You can appeal a denied SSDI claim by filing a Request for Reconsideration within 60 days of receiving the denial notice.',\n    aiModel: 'gpt-4.1-mini',\n    domainContext: 'disability law',\n    strictnessThreshold: 80,\n    notifyEmail: 'francor@simple.biz'\n  },\n  {\n    _testName: 'BUG - Wrong Domain Context (cooking instead of law)',\n    _testType: 'bug',\n    _expectReviewNeeded: false,\n    _scenario: 'bug-wrong-context',\n    _bugDescription: 'Domain context says cooking recipes but workflow is disability law - tests whether validator catches the mismatch',\n    workflowName: 'KOBE - Hogan Smith Automation',\n    aiTaskType: 'GENERATION',\n    originalInput: 'Can I receive SSDI benefits if I have a back injury in Arkansas?',\n    aiOutput: 'To make a classic Arkansas BBQ pulled pork, start by seasoning a 5-pound pork shoulder with paprika, garlic powder, and brown sugar. Smoke at 225 degrees for 12 hours until the internal temperature reaches 203 degrees. Let it rest for 30 minutes before pulling. Serve on brioche buns with coleslaw and pickles.',\n    aiModel: 'gpt-4.1-mini',\n    domainContext: 'cooking recipes',\n    strictnessThreshold: 75,\n    notifyEmail: 'francor@simple.biz'\n  }\n];\n\nreturn testCases.map(function(tc) { return { json: tc }; });"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -84,7 +84,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Get the sub-workflow result and the original test case\nconst result = $input.first().json;\nconst testCase = $('Loop Over Tests').first().json;\n\nvar testName = testCase._testName;\nvar expectReview = testCase._expectReviewNeeded;\nvar scenario = testCase._scenario;\n\n// Determine actual outcome\nvar actualReview = result.needsHumanReview === true;\n\n// Compare: did the sub-workflow produce the expected outcome?\nvar testPassed = (expectReview === actualReview);\n\nvar status = testPassed ? 'TEST PASSED' : 'TEST FAILED';\nvar detail = '';\nif (!testPassed) {\n  if (expectReview) {\n    detail = 'Expected sub-workflow to FLAG this output for review, but it PASSED it through.';\n  } else {\n    detail = 'Expected sub-workflow to PASS this output, but it FLAGGED it for review.';\n  }\n} else {\n  detail = expectReview\n    ? 'Correctly flagged for human review.'\n    : 'Correctly passed without flagging.';\n}\n\nvar resultObj = {\n  testName: testName,\n  scenario: scenario,\n  testStatus: status,\n  testPassed: testPassed,\n  detail: detail,\n  expectedReviewNeeded: expectReview,\n  actualReviewNeeded: actualReview,\n  confidenceScore: result.confidenceScore != null ? result.confidenceScore : 'N/A',\n  overallAssessment: result.overallAssessment || 'N/A',\n  passed: result.passed != null ? result.passed : 'N/A',\n  reviewLevel: result.reviewLevel || 'NONE',\n  decisionSummary: result.decisionSummary || '',\n  flaggedIssuesCount: result.flaggedIssues ? result.flaggedIssues.length : 0,\n  unsourcedClaimCount: result.unsourcedClaimCount != null ? result.unsourcedClaimCount : 0,\n  totalClaimsChecked: result.totalClaimsChecked != null ? result.totalClaimsChecked : 0\n};\n\n// Accumulate results in workflow static data so Aggregate Results can read ALL iterations\nvar staticData = $getWorkflowStaticData('global');\nif (!Array.isArray(staticData._testResults)) {\n  staticData._testResults = [];\n}\nstaticData._testResults.push(resultObj);\n\nreturn [{ json: resultObj }];"
+        "jsCode": "// Get the sub-workflow result and the original test case\nvar result = $input.first().json;\nvar testCase = $('Loop Over Tests').first().json;\n\nvar testName = testCase._testName;\nvar testType = testCase._testType || 'regular';\nvar expectReview = testCase._expectReviewNeeded;\nvar scenario = testCase._scenario;\nvar bugDescription = testCase._bugDescription || '';\n\nvar testPassed = false;\nvar status = '';\nvar detail = '';\n\nif (testType === 'bug') {\n  // Bug tests: PASS if the sub-workflow returned ANY response (didn't crash)\n  var hasResponse = result != null && (result.overallAssessment != null || result.passed != null || result.confidenceScore != null);\n  testPassed = hasResponse;\n  status = testPassed ? 'TEST PASSED' : 'TEST FAILED';\n  detail = testPassed\n    ? 'Sub-workflow handled gracefully. Assessment: ' + (result.overallAssessment || 'N/A') + '. Score: ' + (result.confidenceScore != null ? result.confidenceScore : 'N/A')\n    : 'Sub-workflow crashed or returned empty response.';\n} else {\n  // Regular tests: compare needsHumanReview against expected\n  var actualReview = result.needsHumanReview === true;\n  testPassed = (expectReview === actualReview);\n  status = testPassed ? 'TEST PASSED' : 'TEST FAILED';\n  if (!testPassed) {\n    if (expectReview) {\n      detail = 'Expected sub-workflow to FLAG this output for review, but it PASSED it through.';\n    } else {\n      detail = 'Expected sub-workflow to PASS this output, but it FLAGGED it for review.';\n    }\n  } else {\n    detail = expectReview\n      ? 'Correctly flagged for human review.'\n      : 'Correctly passed without flagging.';\n  }\n}\n\nvar resultObj = {\n  testName: testName,\n  testType: testType,\n  scenario: scenario,\n  testStatus: status,\n  testPassed: testPassed,\n  detail: detail,\n  bugDescription: bugDescription,\n  expectedReviewNeeded: expectReview,\n  actualReviewNeeded: result.needsHumanReview === true,\n  confidenceScore: result.confidenceScore != null ? result.confidenceScore : 'N/A',\n  overallAssessment: result.overallAssessment || 'N/A',\n  passed: result.passed != null ? result.passed : 'N/A',\n  reviewLevel: result.reviewLevel || 'NONE',\n  decisionSummary: result.decisionSummary || '',\n  flaggedIssuesCount: result.flaggedIssues ? result.flaggedIssues.length : 0,\n  unsourcedClaimCount: result.unsourcedClaimCount != null ? result.unsourcedClaimCount : 0,\n  totalClaimsChecked: result.totalClaimsChecked != null ? result.totalClaimsChecked : 0\n};\n\n// Accumulate ALL results in static data\nvar staticData = $getWorkflowStaticData('global');\nif (!Array.isArray(staticData._testResults)) {\n  staticData._testResults = [];\n}\nstaticData._testResults.push(resultObj);\n\n// Accumulate bug results separately for Retry Queue\nif (testType === 'bug') {\n  if (!Array.isArray(staticData._retryQueueEntries)) {\n    staticData._retryQueueEntries = [];\n  }\n  staticData._retryQueueEntries.push({\n    Timestamp: new Date().toISOString(),\n    OriginalExecutionId: result.executionId || 'N/A',\n    WorkflowName: testCase.workflowName,\n    Status: 'PENDING',\n    RetryCount: 0,\n    LastRetry: '',\n    ErrorMessage: bugDescription,\n    workflowName: testCase.workflowName,\n    aiTaskType: testCase.aiTaskType,\n    originalInput: testCase.originalInput,\n    aiOutput: testCase.aiOutput || '',\n    aiModel: testCase.aiModel || '',\n    domainContext: testCase.domainContext || '',\n    strictnessThreshold: testCase.strictnessThreshold != null ? testCase.strictnessThreshold : 80,\n    notifyEmail: testCase.notifyEmail || '',\n    customValidationInstructions: testCase.customValidationInstructions || ''\n  });\n}\n\nreturn [{ json: resultObj }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -97,7 +97,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Read all accumulated test results from workflow static data\nvar staticData = $getWorkflowStaticData('global');\nvar allResults = staticData._testResults || [];\n\n// Clear the accumulator for the next run\ndelete staticData._testResults;\n\nvar totalTests = allResults.length;\nvar testsPassed = 0;\nvar testsFailed = 0;\nvar rows = '';\n\nfor (var i = 0; i < allResults.length; i++) {\n  var r = allResults[i];\n  if (r.testPassed) {\n    testsPassed++;\n  } else {\n    testsFailed++;\n  }\n\n  var statusColor = r.testPassed ? '#28a745' : '#dc3545';\n  var statusIcon = r.testPassed ? 'PASS' : 'FAIL';\n\n  rows += '<tr>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + (i + 1) + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;font-weight:bold;color:' + statusColor + ';\">' + statusIcon + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + r.testName + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;text-align:center;\">' + r.confidenceScore + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + r.overallAssessment + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;text-align:center;\">' + (r.expectedReviewNeeded ? 'Yes' : 'No') + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;text-align:center;\">' + (r.actualReviewNeeded ? 'Yes' : 'No') + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + r.detail + '</td>' +\n    '</tr>';\n}\n\nvar overallColor = testsFailed === 0 ? '#28a745' : '#dc3545';\nvar overallStatus = testsFailed === 0 ? 'ALL TESTS PASSED' : testsFailed + ' TEST(S) FAILED';\n\nvar reportHtml = '<div style=\"font-family:Arial,sans-serif;max-width:1000px;margin:0 auto;\">' +\n  '<div style=\"background:' + overallColor + ';color:white;padding:20px;border-radius:8px 8px 0 0;\">' +\n  '<h2 style=\"margin:0;\">AI Validation Test Harness Results</h2>' +\n  '<p style=\"margin:6px 0 0;font-size:18px;\">' + overallStatus + ' (' + testsPassed + '/' + totalTests + ')</p>' +\n  '</div>' +\n  '<div style=\"padding:16px;border:1px solid #ddd;border-top:none;\">' +\n  '<table style=\"width:100%;border-collapse:collapse;\">' +\n  '<tr style=\"background:#f5f5f5;\">' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">#</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Result</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Test Scenario</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Score</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Assessment</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Expected Review</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Actual Review</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Detail</th>' +\n  '</tr>' +\n  rows +\n  '</table>' +\n  '<div style=\"margin-top:16px;padding:12px;background:#f9f9f9;border-radius:4px;\">' +\n  '<strong>Summary:</strong> ' + totalTests + ' tests executed. ' +\n  '<span style=\"color:#28a745;font-weight:bold;\">' + testsPassed + ' passed</span>, ' +\n  '<span style=\"color:' + (testsFailed > 0 ? '#dc3545' : '#28a745') + ';font-weight:bold;\">' + testsFailed + ' failed</span>.' +\n  '</div>' +\n  '</div></div>';\n\nvar subject = testsFailed === 0\n  ? '[TEST HARNESS] ALL PASSED - ' + testsPassed + '/' + totalTests + ' scenarios'\n  : '[TEST HARNESS] ' + testsFailed + ' FAILED - ' + testsPassed + '/' + totalTests + ' passed';\n\nreturn [{\n  json: {\n    totalTests: totalTests,\n    testsPassed: testsPassed,\n    testsFailed: testsFailed,\n    allPassed: testsFailed === 0,\n    overallStatus: overallStatus,\n    emailSubject: subject,\n    reportHtml: reportHtml,\n    results: allResults\n  }\n}];"
+        "jsCode": "// Read all accumulated test results from workflow static data\nvar staticData = $getWorkflowStaticData('global');\nvar allResults = staticData._testResults || [];\n\n// Clear the test results accumulator\ndelete staticData._testResults;\n\n// Separate regular and bug tests\nvar regularResults = [];\nvar bugResults = [];\nfor (var i = 0; i < allResults.length; i++) {\n  if (allResults[i].testType === 'bug') {\n    bugResults.push(allResults[i]);\n  } else {\n    regularResults.push(allResults[i]);\n  }\n}\n\nvar totalTests = allResults.length;\nvar testsPassed = 0;\nvar testsFailed = 0;\n\n// Build regular test rows\nvar regularRows = '';\nfor (var i = 0; i < regularResults.length; i++) {\n  var r = regularResults[i];\n  if (r.testPassed) testsPassed++;\n  else testsFailed++;\n\n  var statusColor = r.testPassed ? '#28a745' : '#dc3545';\n  var statusIcon = r.testPassed ? 'PASS' : 'FAIL';\n\n  regularRows += '<tr>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + (i + 1) + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;font-weight:bold;color:' + statusColor + ';\">' + statusIcon + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + r.testName + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;text-align:center;\">' + r.confidenceScore + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + r.overallAssessment + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;text-align:center;\">' + (r.expectedReviewNeeded ? 'Yes' : 'No') + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;text-align:center;\">' + (r.actualReviewNeeded ? 'Yes' : 'No') + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + r.detail + '</td>' +\n    '</tr>';\n}\n\n// Build bug test rows\nvar bugRows = '';\nfor (var j = 0; j < bugResults.length; j++) {\n  var b = bugResults[j];\n  if (b.testPassed) testsPassed++;\n  else testsFailed++;\n\n  var bStatusColor = b.testPassed ? '#28a745' : '#dc3545';\n  var bStatusIcon = b.testPassed ? 'PASS' : 'FAIL';\n\n  bugRows += '<tr>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + (j + 1) + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;font-weight:bold;color:' + bStatusColor + ';\">' + bStatusIcon + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + b.testName + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + b.bugDescription + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;text-align:center;\">' + b.confidenceScore + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + b.overallAssessment + '</td>' +\n    '<td style=\"padding:10px;border:1px solid #ddd;\">' + b.detail + '</td>' +\n    '</tr>';\n}\n\nvar overallColor = testsFailed === 0 ? '#28a745' : '#dc3545';\nvar overallStatus = testsFailed === 0 ? 'ALL TESTS PASSED' : testsFailed + ' TEST(S) FAILED';\n\nvar reportHtml = '<div style=\"font-family:Arial,sans-serif;max-width:1000px;margin:0 auto;\">' +\n  '<div style=\"background:' + overallColor + ';color:white;padding:20px;border-radius:8px 8px 0 0;\">' +\n  '<h2 style=\"margin:0;\">AI Validation Test Harness Results</h2>' +\n  '<p style=\"margin:6px 0 0;font-size:18px;\">' + overallStatus + ' (' + testsPassed + '/' + totalTests + ')</p>' +\n  '</div>' +\n  '<div style=\"padding:16px;border:1px solid #ddd;border-top:none;\">' +\n  '<h3 style=\"margin-top:0;\">Regular Validation Tests (' + regularResults.length + ')</h3>' +\n  '<table style=\"width:100%;border-collapse:collapse;\">' +\n  '<tr style=\"background:#f5f5f5;\">' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">#</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Result</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Test Scenario</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Score</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Assessment</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Expected Review</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Actual Review</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Detail</th>' +\n  '</tr>' +\n  regularRows +\n  '</table>' +\n  '<h3 style=\"margin-top:24px;\">Bug / Edge Case Tests (' + bugResults.length + ')</h3>' +\n  '<p style=\"color:#666;margin-top:0;\">These test error handling. PASS = sub-workflow handled gracefully without crashing. Results logged to Retry Queue sheet.</p>' +\n  '<table style=\"width:100%;border-collapse:collapse;\">' +\n  '<tr style=\"background:#fff3cd;\">' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">#</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Result</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Test Scenario</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Bug Description</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Score</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Assessment</th>' +\n  '<th style=\"padding:10px;border:1px solid #ddd;\">Detail</th>' +\n  '</tr>' +\n  bugRows +\n  '</table>' +\n  '<div style=\"margin-top:16px;padding:12px;background:#f9f9f9;border-radius:4px;\">' +\n  '<strong>Summary:</strong> ' + totalTests + ' tests executed (' + regularResults.length + ' regular + ' + bugResults.length + ' bug). ' +\n  '<span style=\"color:#28a745;font-weight:bold;\">' + testsPassed + ' passed</span>, ' +\n  '<span style=\"color:' + (testsFailed > 0 ? '#dc3545' : '#28a745') + ';font-weight:bold;\">' + testsFailed + ' failed</span>. ' +\n  (bugResults.length > 0 ? bugResults.length + ' entries written to Retry Queue sheet.' : '') +\n  '</div>' +\n  '</div></div>';\n\nvar subject = testsFailed === 0\n  ? '[TEST HARNESS] ALL PASSED - ' + testsPassed + '/' + totalTests + ' scenarios'\n  : '[TEST HARNESS] ' + testsFailed + ' FAILED - ' + testsPassed + '/' + totalTests + ' passed';\n\nreturn [{\n  json: {\n    totalTests: totalTests,\n    testsPassed: testsPassed,\n    testsFailed: testsFailed,\n    allPassed: testsFailed === 0,\n    overallStatus: overallStatus,\n    emailSubject: subject,\n    reportHtml: reportHtml,\n    regularCount: regularResults.length,\n    bugCount: bugResults.length,\n    results: allResults\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -132,6 +132,217 @@
           "name": "Kayser Gmail"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Read accumulated retry queue entries from static data\nvar staticData = $getWorkflowStaticData('global');\nvar retryEntries = staticData._retryQueueEntries || [];\n\n// Clear the retry queue accumulator\ndelete staticData._retryQueueEntries;\n\n// If no bug scenarios ran, return empty array (downstream sheet node won't execute)\nif (retryEntries.length === 0) {\n  return [];\n}\n\n// Return one item per retry queue entry for Google Sheets to append\nreturn retryEntries.map(function(entry) {\n  return { json: entry };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3472,
+        384
+      ],
+      "id": "c8e1a2f0-7b3d-4a91-b5f8-d1e4f9c0a3b2",
+      "name": "Prepare Retry Queue Entries"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Retry Queue",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.Timestamp }}",
+            "Original Execution ID": "={{ $json.OriginalExecutionId }}",
+            "Workflow Name": "={{ $json.WorkflowName }}",
+            "Status": "={{ $json.Status }}",
+            "Retry Count": "={{ $json.RetryCount }}",
+            "Last Retry": "={{ $json.LastRetry }}",
+            "Error Message": "={{ $json.ErrorMessage }}",
+            "workflowName": "={{ $json.workflowName }}",
+            "aiTaskType": "={{ $json.aiTaskType }}",
+            "originalInput": "={{ $json.originalInput }}",
+            "aiOutput": "={{ $json.aiOutput }}",
+            "aiModel": "={{ $json.aiModel }}",
+            "domainContext": "={{ $json.domainContext }}",
+            "strictnessThreshold": "={{ $json.strictnessThreshold }}",
+            "notifyEmail": "={{ $json.notifyEmail }}",
+            "customValidationInstructions": "={{ $json.customValidationInstructions }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Original Execution ID",
+              "displayName": "Original Execution ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Workflow Name",
+              "displayName": "Workflow Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Retry Count",
+              "displayName": "Retry Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Retry",
+              "displayName": "Last Retry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error Message",
+              "displayName": "Error Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflowName",
+              "displayName": "workflowName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aiTaskType",
+              "displayName": "aiTaskType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "originalInput",
+              "displayName": "originalInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aiOutput",
+              "displayName": "aiOutput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aiModel",
+              "displayName": "aiModel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "domainContext",
+              "displayName": "domainContext",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "strictnessThreshold",
+              "displayName": "strictnessThreshold",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notifyEmail",
+              "displayName": "notifyEmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customValidationInstructions",
+              "displayName": "customValidationInstructions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3696,
+        384
+      ],
+      "id": "a1b2c3d4-5e6f-7a8b-9c0d-e1f2a3b4c5d6",
+      "name": "Write Retry Queue Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKCeMwlrPG6pXvK7",
+          "name": "Google Sheets Kayser"
+        }
+      }
     }
   ],
   "connections": {
@@ -162,6 +373,11 @@
         [
           {
             "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Retry Queue Entries",
             "type": "main",
             "index": 0
           }
@@ -202,6 +418,17 @@
         [
           {
             "node": "Send Test Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Retry Queue Entries": {
+      "main": [
+        [
+          {
+            "node": "Write Retry Queue Sheet",
             "type": "main",
             "index": 0
           }

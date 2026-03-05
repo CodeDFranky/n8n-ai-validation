@@ -1,0 +1,14 @@
+[
+  {
+    "json": {
+      "workflowName": "Unknown Workflow",
+      "aiTaskType": "BANANA",
+      "originalInput": "How do I appeal a denied SSDI claim?",
+      "aiOutput": "You can appeal a denied SSDI claim by filing a Request for Reconsideration within 60 days of receiving the denial notice.",
+      "aiModel": "gpt-4.1-mini",
+      "domainContext": "disability law",
+      "strictnessThreshold": 80,
+      "notifyEmail": "francor@simple.biz"
+    }
+  }
+]
