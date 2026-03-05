@@ -2,7 +2,7 @@
   "nodes": [
     {
       "parameters": {
-        "httpMethod": "={{$json[\"headers\"][\"content-type\"] ? 'POST' : 'GET'}}",
+        "httpMethod": "GET",
         "path": "review-response",
         "responseMode": "responseNode",
         "options": {}
@@ -11,54 +11,37 @@
       "typeVersion": 2,
       "position": [
         -400,
-        208
+        400
       ],
       "id": "a1b2c3d4-e5f6-7890-abcd-100000000001",
-      "name": "Webhook",
-      "webhookId": "review-response-webhook-001"
+      "name": "GET Form",
+      "webhookId": "review-response-get-001"
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "check-post-body",
-              "leftValue": "={{ $json.body.disposition }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "exists",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
+        "httpMethod": "POST",
+        "path": "review-response",
+        "responseMode": "responseNode",
         "options": {}
       },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
       "position": [
-        -160,
-        208
+        -400,
+        16
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000002",
-      "name": "Is POST?"
+      "id": "a1b2c3d4-e5f6-7890-abcd-100000000010",
+      "name": "POST Submission",
+      "webhookId": "review-response-post-001"
     },
     {
       "parameters": {
-        "jsCode": "const query = $input.first().json.query || {};\nconst executionId = query.executionId || 'UNKNOWN';\nconst disposition = query.disposition || 'Confirmed OK';\n\nconst checked = function(val, target) {\n  return val === target ? 'checked' : '';\n};\n\nconst html = '<!DOCTYPE html>' +\n'<html>' +\n'<head>' +\n'  <meta charset=\"utf-8\">' +\n'  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">' +\n'  <title>AI Validation Review</title>' +\n'  <style>' +\n'    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }' +\n'    .header { background: #1a73e8; color: white; padding: 16px; border-radius: 8px 8px 0 0; }' +\n'    .header h2 { margin: 0; }' +\n'    .exec-id { font-family: monospace; font-size: 13px; opacity: 0.8; margin: 4px 0 0; }' +\n'    .form-body { padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; background: white; }' +\n'    label.field-label { display: block; margin-top: 16px; font-weight: bold; font-size: 14px; }' +\n'    input[type=\"text\"], textarea { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }' +\n'    textarea { height: 100px; resize: vertical; }' +\n'    .radio-group { margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap; }' +\n'    .radio-option { display: flex; align-items: center; gap: 6px; }' +\n'    .radio-option input { margin: 0; }' +\n'    .radio-option label { font-weight: normal; cursor: pointer; }' +\n'    button { margin-top: 24px; background: #1a73e8; color: white; border: none; padding: 12px 32px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }' +\n'    button:hover { background: #1557b0; }' +\n'  </style>' +\n'</head>' +\n'<body>' +\n'  <div class=\"header\">' +\n'    <h2>AI Validation Review Response</h2>' +\n'    <p class=\"exec-id\">Execution: ' + executionId + '</p>' +\n'  </div>' +\n'  <div class=\"form-body\">' +\n'    <form method=\"POST\">' +\n'      <input type=\"hidden\" name=\"executionId\" value=\"' + executionId + '\">' +\n'      <label class=\"field-label\">Disposition:</label>' +\n'      <div class=\"radio-group\">' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Confirmed OK\" id=\"d1\" ' + checked(disposition, 'Confirmed OK') + '><label for=\"d1\">Confirmed OK</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Corrected\" id=\"d2\" ' + checked(disposition, 'Corrected') + '><label for=\"d2\">Corrected</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Escalated\" id=\"d3\" ' + checked(disposition, 'Escalated') + '><label for=\"d3\">Escalated</label></div>' +\n'      </div>' +\n'      <label class=\"field-label\">Reviewed By:</label>' +\n'      <input type=\"text\" name=\"reviewedBy\" placeholder=\"Your name or email\" required>' +\n'      <label class=\"field-label\">Review Notes (optional):</label>' +\n'      <textarea name=\"notes\" placeholder=\"Any notes about this review...\"></textarea>' +\n'      <button type=\"submit\">Submit Review</button>' +\n'    </form>' +\n'  </div>' +\n'</body>' +\n'</html>';\n\nreturn [{ json: { responseBody: html } }];"
+        "jsCode": "const query = $input.first().json.query || {};\nconst executionId = query.executionId || 'UNKNOWN';\nconst disposition = query.disposition || 'Confirmed OK';\n\nconst checked = function(val, target) {\n  return val === target ? 'checked' : '';\n};\n\nconst html = '<!DOCTYPE html>' +\n'<html>' +\n'<head>' +\n'  <meta charset=\"utf-8\">' +\n'  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">' +\n'  <title>AI Validation Review</title>' +\n'  <style>' +\n'    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }' +\n'    .header { background: #1a73e8; color: white; padding: 16px; border-radius: 8px 8px 0 0; }' +\n'    .header h2 { margin: 0; }' +\n'    .exec-id { font-family: monospace; font-size: 13px; opacity: 0.8; margin: 4px 0 0; }' +\n'    .form-body { padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; background: white; }' +\n'    label.field-label { display: block; margin-top: 16px; font-weight: bold; font-size: 14px; }' +\n'    input[type=\"text\"], textarea { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }' +\n'    textarea { height: 100px; resize: vertical; }' +\n'    .radio-group { margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap; }' +\n'    .radio-option { display: flex; align-items: center; gap: 6px; }' +\n'    .radio-option input { margin: 0; }' +\n'    .radio-option label { font-weight: normal; cursor: pointer; }' +\n'    button { margin-top: 24px; background: #1a73e8; color: white; border: none; padding: 12px 32px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }' +\n'    button:hover { background: #1557b0; }' +\n'  </style>' +\n'</head>' +\n'<body>' +\n'  <div class=\"header\">' +\n'    <h2>AI Validation Review Response</h2>' +\n'    <p class=\"exec-id\">Execution: ' + executionId + '</p>' +\n'  </div>' +\n'  <div class=\"form-body\">' +\n'    <form method=\"POST\" action=\"\">' +\n'      <input type=\"hidden\" name=\"executionId\" value=\"' + executionId + '\">' +\n'      <label class=\"field-label\">Disposition:</label>' +\n'      <div class=\"radio-group\">' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Confirmed OK\" id=\"d1\" ' + checked(disposition, 'Confirmed OK') + '><label for=\"d1\">Confirmed OK</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Corrected\" id=\"d2\" ' + checked(disposition, 'Corrected') + '><label for=\"d2\">Corrected</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Escalated\" id=\"d3\" ' + checked(disposition, 'Escalated') + '><label for=\"d3\">Escalated</label></div>' +\n'      </div>' +\n'      <label class=\"field-label\">Reviewed By:</label>' +\n'      <input type=\"text\" name=\"reviewedBy\" placeholder=\"Your name or email\" required>' +\n'      <label class=\"field-label\">Review Notes (optional):</label>' +\n'      <textarea name=\"notes\" placeholder=\"Any notes about this review...\"></textarea>' +\n'      <button type=\"submit\">Submit Review</button>' +\n'    </form>' +\n'  </div>' +\n'</body>' +\n'</html>';\n\nreturn [{ json: { responseBody: html } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        80,
+        -120,
         400
       ],
       "id": "a1b2c3d4-e5f6-7890-abcd-100000000003",
@@ -82,7 +65,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        320,
+        160,
         400
       ],
       "id": "a1b2c3d4-e5f6-7890-abcd-100000000004",
@@ -95,7 +78,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        80,
+        -120,
         16
       ],
       "id": "a1b2c3d4-e5f6-7890-abcd-100000000005",
@@ -185,7 +168,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        320,
+        160,
         16
       ],
       "id": "a1b2c3d4-e5f6-7890-abcd-100000000006",
@@ -204,7 +187,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        560,
+        440,
         16
       ],
       "id": "a1b2c3d4-e5f6-7890-abcd-100000000007",
@@ -228,7 +211,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        800,
+        720,
         16
       ],
       "id": "a1b2c3d4-e5f6-7890-abcd-100000000008",
@@ -236,29 +219,22 @@
     }
   ],
   "connections": {
-    "Webhook": {
+    "GET Form": {
       "main": [
         [
           {
-            "node": "Is POST?",
+            "node": "Build Review Form",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Is POST?": {
+    "POST Submission": {
       "main": [
         [
           {
             "node": "Extract Submission",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Build Review Form",
             "type": "main",
             "index": 0
           }
