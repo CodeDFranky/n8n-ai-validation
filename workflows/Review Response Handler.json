@@ -2,7 +2,6 @@
   "nodes": [
     {
       "parameters": {
-        "httpMethod": "GET",
         "path": "review-response",
         "responseMode": "responseNode",
         "options": {}
@@ -10,10 +9,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -400,
+        1024,
         400
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000001",
+      "id": "9c72512c-ecba-416f-bbc6-58da82351606",
       "name": "GET Form",
       "webhookId": "review-response-get-001"
     },
@@ -27,24 +26,24 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -400,
-        16
+        1024,
+        176
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000010",
+      "id": "5552f725-ce58-4c6d-b3cb-ed796547632c",
       "name": "POST Submission",
       "webhookId": "review-response-post-001"
     },
     {
       "parameters": {
-        "jsCode": "const query = $input.first().json.query || {};\nconst executionId = query.executionId || 'UNKNOWN';\nconst disposition = query.disposition || 'Confirmed OK';\n\nconst checked = function(val, target) {\n  return val === target ? 'checked' : '';\n};\n\nconst html = '<!DOCTYPE html>' +\n'<html>' +\n'<head>' +\n'  <meta charset=\"utf-8\">' +\n'  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">' +\n'  <title>AI Validation Review</title>' +\n'  <style>' +\n'    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }' +\n'    .header { background: #1a73e8; color: white; padding: 16px; border-radius: 8px 8px 0 0; }' +\n'    .header h2 { margin: 0; }' +\n'    .exec-id { font-family: monospace; font-size: 13px; opacity: 0.8; margin: 4px 0 0; }' +\n'    .form-body { padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; background: white; }' +\n'    label.field-label { display: block; margin-top: 16px; font-weight: bold; font-size: 14px; }' +\n'    input[type=\"text\"], textarea { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }' +\n'    textarea { height: 100px; resize: vertical; }' +\n'    .radio-group { margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap; }' +\n'    .radio-option { display: flex; align-items: center; gap: 6px; }' +\n'    .radio-option input { margin: 0; }' +\n'    .radio-option label { font-weight: normal; cursor: pointer; }' +\n'    button { margin-top: 24px; background: #1a73e8; color: white; border: none; padding: 12px 32px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }' +\n'    button:hover { background: #1557b0; }' +\n'  </style>' +\n'</head>' +\n'<body>' +\n'  <div class=\"header\">' +\n'    <h2>AI Validation Review Response</h2>' +\n'    <p class=\"exec-id\">Execution: ' + executionId + '</p>' +\n'  </div>' +\n'  <div class=\"form-body\">' +\n'    <form method=\"POST\" action=\"\">' +\n'      <input type=\"hidden\" name=\"executionId\" value=\"' + executionId + '\">' +\n'      <label class=\"field-label\">Disposition:</label>' +\n'      <div class=\"radio-group\">' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Confirmed OK\" id=\"d1\" ' + checked(disposition, 'Confirmed OK') + '><label for=\"d1\">Confirmed OK</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Corrected\" id=\"d2\" ' + checked(disposition, 'Corrected') + '><label for=\"d2\">Corrected</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Escalated\" id=\"d3\" ' + checked(disposition, 'Escalated') + '><label for=\"d3\">Escalated</label></div>' +\n'      </div>' +\n'      <label class=\"field-label\">Reviewed By:</label>' +\n'      <input type=\"text\" name=\"reviewedBy\" placeholder=\"Your name or email\" required>' +\n'      <label class=\"field-label\">Review Notes (optional):</label>' +\n'      <textarea name=\"notes\" placeholder=\"Any notes about this review...\"></textarea>' +\n'      <button type=\"submit\">Submit Review</button>' +\n'    </form>' +\n'  </div>' +\n'</body>' +\n'</html>';\n\nreturn [{ json: { responseBody: html } }];"
+        "jsCode": "const query = $input.first().json.query || {};\nconst executionId = query.executionId || 'UNKNOWN';\nconst disposition = query.disposition || '';\n\nconst checked = function(val, target) {\n  return val === target ? 'checked' : '';\n};\n\nconst html = '<!DOCTYPE html>' +\n'<html>' +\n'<head>' +\n'  <meta charset=\"utf-8\">' +\n'  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">' +\n'  <title>AI Validation Review</title>' +\n'  <style>' +\n'    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }' +\n'    .header { background: #1a73e8; color: white; padding: 16px; border-radius: 8px 8px 0 0; }' +\n'    .header h2 { margin: 0; }' +\n'    .exec-id { font-family: monospace; font-size: 13px; opacity: 0.8; margin: 4px 0 0; }' +\n'    .form-body { padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; background: white; }' +\n'    label.field-label { display: block; margin-top: 16px; font-weight: bold; font-size: 14px; }' +\n'    input[type=\"text\"], textarea { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }' +\n'    textarea { height: 100px; resize: vertical; }' +\n'    .radio-group { margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap; }' +\n'    .radio-option { display: flex; align-items: center; gap: 6px; }' +\n'    .radio-option input { margin: 0; }' +\n'    .radio-option label { font-weight: normal; cursor: pointer; }' +\n'    button { margin-top: 24px; background: #1a73e8; color: white; border: none; padding: 12px 32px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }' +\n'    button:hover { background: #1557b0; }' +\n'  </style>' +\n'</head>' +\n'<body>' +\n'  <div class=\"header\">' +\n'    <h2>AI Validation Review Response</h2>' +\n'    <p class=\"exec-id\">Execution: ' + executionId + '</p>' +\n'  </div>' +\n'  <div class=\"form-body\">' +\n'    <form method=\"POST\" action=\"\">' +\n'      <input type=\"hidden\" name=\"executionId\" value=\"' + executionId + '\">' +\n'      <label class=\"field-label\">Disposition:</label>' +\n'      <div class=\"radio-group\">' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Confirmed OK\" id=\"d1\" ' + checked(disposition, 'Confirmed OK') + '><label for=\"d1\">Confirmed OK</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Corrected\" id=\"d2\" ' + checked(disposition, 'Corrected') + '><label for=\"d2\">Corrected</label></div>' +\n'        <div class=\"radio-option\"><input type=\"radio\" name=\"disposition\" value=\"Escalated\" id=\"d3\" ' + checked(disposition, 'Escalated') + '><label for=\"d3\">Escalated</label></div>' +\n'      </div>' +\n'      <label class=\"field-label\">Reviewed By:</label>' +\n'      <input type=\"text\" name=\"reviewedBy\" placeholder=\"Your name or email\" required>' +\n'      <label class=\"field-label\">Review Notes (optional):</label>' +\n'      <textarea name=\"notes\" placeholder=\"Any notes about this review...\"></textarea>' +\n'      <button type=\"submit\">Submit Review</button>' +\n'    </form>' +\n'  </div>' +\n'</body>' +\n'</html>';\n\nreturn [{ json: { responseBody: html } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -120,
+        1248,
         400
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000003",
+      "id": "4c7f0751-7e78-4620-a1d5-af49c9ff1bda",
       "name": "Build Review Form"
     },
     {
@@ -65,10 +64,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        160,
+        1472,
         400
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000004",
+      "id": "121ba5bb-a49a-467d-8b80-7a5755a738a0",
       "name": "Serve Form"
     },
     {
@@ -78,10 +77,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -120,
-        16
+        1248,
+        176
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000005",
+      "id": "f3e9b3ce-ee52-49bc-84af-238f63419181",
       "name": "Extract Submission"
     },
     {
@@ -168,10 +167,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        160,
-        16
+        1472,
+        176
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000006",
+      "id": "7de64380-3f4d-4c0f-aa18-1fb686ba9824",
       "name": "Update Audit Log",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -187,10 +186,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        440,
-        16
+        1696,
+        176
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000007",
+      "id": "4e6c2183-8e68-47c8-a701-9f59e84635a0",
       "name": "Build Confirmation"
     },
     {
@@ -211,10 +210,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        720,
-        16
+        1920,
+        176
       ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-100000000008",
+      "id": "d2a8db20-0e19-48c3-a09d-8b285954089a",
       "name": "Send Confirmation"
     }
   ],

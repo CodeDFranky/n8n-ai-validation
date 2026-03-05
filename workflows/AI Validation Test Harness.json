@@ -3,16 +3,16 @@
     {
       "parameters": {
         "content": "## AI Validation Test Harness\n\n**Setup:**\n1. Import the **AI Validation Sub-Workflow** first\n2. Copy its workflow ID and replace `REPLACE_WITH_SUBWORKFLOW_ID` in the \"Run Sub-Workflow\" node\n3. Run this workflow manually to execute all 6 test scenarios\n\n**Test Scenarios:**\n- GENERATION Pass / Fail (KOBE)\n- EVALUATION Pass / Fail (Call Transcribe)\n- CUSTOM Pass / Fail (Veo3)\n\n**What it checks:**\nEach test expects the sub-workflow to either flag or pass the AI output. The harness compares `needsHumanReview` against the expected value and reports PASS/FAIL for each scenario.",
-        "height": 380,
-        "width": 400
+        "height": 428,
+        "width": 624
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1120,
-        96
+        2496,
+        304
       ],
       "typeVersion": 1,
-      "id": "c19a7e17-7873-459f-9f79-9ed70b000c8d",
+      "id": "3d2f40f2-e5bf-4c63-a11a-0c8094fd068b",
       "name": "Sticky Note"
     },
     {
@@ -20,10 +20,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        1360,
-        480
+        2800,
+        768
       ],
-      "id": "7ffccadf-c583-451c-9eda-c6d6e6cd7fa1",
+      "id": "a673ed9c-8a41-4f6e-9f04-68685ad94f73",
       "name": "Run Tests"
     },
     {
@@ -33,10 +33,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1632,
-        480
+        3024,
+        768
       ],
-      "id": "5794926a-3ab5-4ad2-9c9d-5ef03282a8ae",
+      "id": "d0f70580-d7e3-4e21-b6f2-13e80ba2096d",
       "name": "Load Test Cases"
     },
     {
@@ -46,10 +46,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1888,
-        480
+        3248,
+        768
       ],
-      "id": "9284c629-4124-43c0-9899-6fa1c754be40",
+      "id": "2f8675c6-876c-4284-9bd2-0a8b56330b61",
       "name": "Loop Over Tests"
     },
     {
@@ -74,10 +74,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2144,
-        480
+        3472,
+        768
       ],
-      "id": "67ab2f14-a019-4e24-824d-038d661cc0cd",
+      "id": "36cedda6-4295-4ee4-8623-cd06f469a857",
       "name": "Run Sub-Workflow",
       "retryOnFail": true,
       "waitBetweenTries": 5000
@@ -89,10 +89,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2400,
-        480
+        3696,
+        848
       ],
-      "id": "f54a9654-c97e-4da9-93d6-2a336c766344",
+      "id": "1a852f2f-a3e9-44f5-ada6-5e68f3de4040",
       "name": "Evaluate Result"
     },
     {
@@ -102,10 +102,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2144,
-        192
+        3472,
+        576
       ],
-      "id": "3a7a52a3-0ba6-4abb-9422-c1b9fd302b42",
+      "id": "33d3c5c0-3031-468f-a1a9-a3f4a0316323",
       "name": "Aggregate Results"
     },
     {
@@ -120,10 +120,10 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        2400,
-        192
+        3696,
+        576
       ],
-      "id": "d820c333-5788-49fb-afa6-890315f125c0",
+      "id": "5fb39dcf-613e-4c6c-b852-12c5f7563050",
       "name": "Send Test Report",
       "webhookId": "9a3797dd-b966-4786-b418-83f2d8f9cac5",
       "credentials": {

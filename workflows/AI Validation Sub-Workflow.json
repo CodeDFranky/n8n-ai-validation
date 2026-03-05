@@ -1,14 +1,16 @@
 {
   "nodes": [
     {
-      "parameters": {},
+      "parameters": {
+        "inputSource": "passthrough"
+      },
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
         -1600,
-        208
+        296
       ],
-      "id": "1b4a327b-636b-4443-ab86-6b232c1e389b",
+      "id": "bd461c28-5298-45b9-bd79-03d1b74f9e04",
       "name": "Sub-Workflow Trigger"
     },
     {
@@ -18,11 +20,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1328,
-        208
+        -1376,
+        296
       ],
-      "id": "16f81291-e9da-4c84-9912-4ab07c82a2c2",
-      "name": "Prepare Validation Context"
+      "id": "eabce35b-d17d-4145-927c-d8812bee822a",
+      "name": "Prepare Validation Context1"
     },
     {
       "parameters": {
@@ -31,11 +33,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1072,
-        208
+        -1152,
+        296
       ],
-      "id": "45bd3054-4289-4b41-9bb8-21f6a251ff85",
-      "name": "Build Validation Prompt"
+      "id": "6225490e-8d28-451f-b117-a31d6ba38303",
+      "name": "Build Validation Prompt1"
     },
     {
       "parameters": {
@@ -53,11 +55,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        -896,
-        416
+        -856,
+        520
       ],
-      "id": "b9cadfcc-9896-4b80-98ee-c760d53205ad",
-      "name": "OpenAI Chat Model",
+      "id": "adc4d84f-12eb-4cf9-ba84-4258b817505d",
+      "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
           "id": "NpwqDbmTFAPZiqsb",
@@ -74,26 +76,26 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        -896,
-        208
+        -928,
+        296
       ],
-      "id": "2fd9958b-303d-4226-bf19-19c79602321e",
-      "name": "Run Validation",
+      "id": "e576c991-312e-491c-b70c-782cc5f64a21",
+      "name": "Run Validation1",
       "retryOnFail": true,
       "waitBetweenTries": 5000
     },
     {
       "parameters": {
-        "jsCode": "const item = $input.first();\nconst context = $('Build Validation Prompt').first().json;\nlet text = item.json.output || '';\n\n// Strip code fences if present\ntext = text.replace(/```json\\s*/g, '').replace(/```\\s*/g, '').trim();\n\nvar parsed;\ntry {\n  parsed = JSON.parse(text);\n} catch (e) {\n  // Try to find JSON object in the text\n  var jsonMatch = text.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    try {\n      parsed = JSON.parse(jsonMatch[0]);\n    } catch (e2) {\n      parsed = {\n        confidenceScore: 50,\n        overallAssessment: 'REVIEW_NEEDED',\n        flaggedIssues: [{ issue: 'Validation response could not be parsed', severity: 'MEDIUM', recommendation: 'Manual review recommended' }],\n        sourceCitations: [],\n        reasoning: 'Parse error: ' + e.message\n      };\n    }\n  } else {\n    parsed = {\n      confidenceScore: 50,\n      overallAssessment: 'REVIEW_NEEDED',\n      flaggedIssues: [{ issue: 'Validation response could not be parsed', severity: 'MEDIUM', recommendation: 'Manual review recommended' }],\n      sourceCitations: [],\n      reasoning: 'Parse error: ' + e.message\n    };\n  }\n}\n\nvar citations = parsed.sourceCitations || [];\n\nreturn [{\n  json: {\n    workflowName: context.workflowName,\n    aiTaskType: context.aiTaskType,\n    originalInput: context.originalInput,\n    aiOutput: context.aiOutput,\n    aiModel: context.aiModel,\n    domainContext: context.domainContext,\n    strictnessThreshold: context.strictnessThreshold,\n    notifyEmail: context.notifyEmail,\n    confidenceScore: parsed.confidenceScore != null ? parsed.confidenceScore : 50,\n    overallAssessment: parsed.overallAssessment || 'REVIEW_NEEDED',\n    flaggedIssues: parsed.flaggedIssues || [],\n    sourceCitations: citations,\n    reasoning: parsed.reasoning || '',\n    unsourcedClaimCount: citations.filter(function(c) { return c.status === 'UNSOURCED'; }).length,\n    totalClaimsChecked: citations.length\n  }\n}];"
+        "jsCode": "const item = $input.first();\nconst context = $('Build Validation Prompt1').first().json;\nlet text = item.json.output || '';\n\n// Strip code fences if present\ntext = text.replace(/```json\\s*/g, '').replace(/```\\s*/g, '').trim();\n\nvar parsed;\ntry {\n  parsed = JSON.parse(text);\n} catch (e) {\n  // Try to find JSON object in the text\n  var jsonMatch = text.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    try {\n      parsed = JSON.parse(jsonMatch[0]);\n    } catch (e2) {\n      parsed = {\n        confidenceScore: 50,\n        overallAssessment: 'REVIEW_NEEDED',\n        flaggedIssues: [{ issue: 'Validation response could not be parsed', severity: 'MEDIUM', recommendation: 'Manual review recommended' }],\n        sourceCitations: [],\n        reasoning: 'Parse error: ' + e.message\n      };\n    }\n  } else {\n    parsed = {\n      confidenceScore: 50,\n      overallAssessment: 'REVIEW_NEEDED',\n      flaggedIssues: [{ issue: 'Validation response could not be parsed', severity: 'MEDIUM', recommendation: 'Manual review recommended' }],\n      sourceCitations: [],\n      reasoning: 'Parse error: ' + e.message\n    };\n  }\n}\n\nvar citations = parsed.sourceCitations || [];\n\nreturn [{\n  json: {\n    workflowName: context.workflowName,\n    aiTaskType: context.aiTaskType,\n    originalInput: context.originalInput,\n    aiOutput: context.aiOutput,\n    aiModel: context.aiModel,\n    domainContext: context.domainContext,\n    strictnessThreshold: context.strictnessThreshold,\n    notifyEmail: context.notifyEmail,\n    confidenceScore: parsed.confidenceScore != null ? parsed.confidenceScore : 50,\n    overallAssessment: parsed.overallAssessment || 'REVIEW_NEEDED',\n    flaggedIssues: parsed.flaggedIssues || [],\n    sourceCitations: citations,\n    reasoning: parsed.reasoning || '',\n    unsourcedClaimCount: citations.filter(function(c) { return c.status === 'UNSOURCED'; }).length,\n    totalClaimsChecked: citations.length\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -592,
-        208
+        -576,
+        296
       ],
-      "id": "3a118a91-2657-4c63-9cb9-e65e5a7d106f",
-      "name": "Parse Validation Result"
+      "id": "3b80a5c8-074d-44be-8e00-beb60192ee58",
+      "name": "Parse Validation Result1"
     },
     {
       "parameters": {
@@ -103,10 +105,10 @@
       "typeVersion": 2,
       "position": [
         -352,
-        208
+        296
       ],
-      "id": "e03f2dba-7c18-46af-90ef-2b4c5a089612",
-      "name": "Apply Strictness Threshold"
+      "id": "950dedfa-0567-4ece-b6c5-4cea2e267f7f",
+      "name": "Apply Strictness Threshold1"
     },
     {
       "parameters": {
@@ -122,7 +124,7 @@
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
-          "cachedResultName": "Sheet1",
+          "cachedResultName": "Audit Log",
           "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit#gid=0"
         },
         "columns": {
@@ -280,11 +282,11 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -112,
-        208
+        -128,
+        296
       ],
-      "id": "abd0c3c0-0b4c-4726-8d83-2fb23164aee5",
-      "name": "Write Audit Log",
+      "id": "f3210733-8747-4311-b1eb-df67e8d0dea9",
+      "name": "Write Audit Log1",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "SKCeMwlrPG6pXvK7",
@@ -304,7 +306,7 @@
           "conditions": [
             {
               "id": "route-needs-review",
-              "leftValue": "={{ $('Apply Strictness Threshold').first().json.needsHumanReview }}",
+              "leftValue": "={{ $('Apply Strictness Threshold1').first().json.needsHumanReview }}",
               "rightValue": true,
               "operator": {
                 "type": "boolean",
@@ -320,24 +322,24 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        128,
-        208
+        96,
+        296
       ],
-      "id": "9881fd7d-72ed-4824-b09e-0f85b26f9435",
-      "name": "Route Decision"
+      "id": "1341c40c-fb59-4a3a-922c-311859e60ea7",
+      "name": "Route Decision1"
     },
     {
       "parameters": {
-        "jsCode": "// Pull from Apply Strictness Threshold - Write Audit Log (Google Sheets) strips\n// the data down to 14 flat columns, losing arrays like flaggedIssues and sourceCitations.\nconst item = $('Apply Strictness Threshold').first().json;\n\nvar n8nBaseUrl = 'https://simpledotbiz.app.n8n.cloud';\nvar reviewWebhookUrl = n8nBaseUrl + '/webhook/review-response';\nvar subWorkflowId = '6duP007x1yFIH99y';\n\nvar score = item.confidenceScore;\nvar threshold = item.strictnessThreshold;\nvar severity = item.reviewLevel;\nvar workflowName = item.workflowName;\nvar flaggedIssues = item.flaggedIssues || [];\nvar citations = (item.sourceCitations || []).slice(0, 10);\nvar executionId = $execution.id || 'N/A';\nvar executionLink = n8nBaseUrl + '/workflow/' + subWorkflowId + '/executions/' + executionId;\n\nvar issuesHtml = '';\nfor (var i = 0; i < flaggedIssues.length; i++) {\n  var issue = flaggedIssues[i];\n  var color = issue.severity === 'HIGH' ? '#dc3545' : (issue.severity === 'MEDIUM' ? '#ffc107' : '#28a745');\n  issuesHtml += '<tr>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + (i + 1) + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\"><span style=\"color:' + color + ';font-weight:bold;\">' + issue.severity + '</span></td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + issue.issue + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + issue.recommendation + '</td>' +\n    '</tr>';\n}\n\nvar citationsHtml = '';\nfor (var j = 0; j < citations.length; j++) {\n  var c = citations[j];\n  var statusColor = c.status === 'VERIFIED' ? '#28a745' : (c.status === 'PLAUSIBLE' ? '#ffc107' : '#dc3545');\n  citationsHtml += '<tr>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + c.claim + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + c.source + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\"><span style=\"color:' + statusColor + ';font-weight:bold;\">' + c.status + '</span></td>' +\n    '</tr>';\n}\n\nvar severityColor = severity === 'CRITICAL' ? '#dc3545' : (severity === 'HIGH' ? '#ff6b35' : '#ffc107');\n\n// Review action buttons\nvar actionButtonsHtml = '<div style=\"padding:16px;background:#f0f4ff;border:1px solid #ddd;border-top:none;\">' +\n  '<p style=\"margin:0 0 12px;font-weight:bold;font-size:14px;\">Quick Review Actions:</p>' +\n  '<a href=\"' + reviewWebhookUrl + '?executionId=' + encodeURIComponent(executionId) + '&disposition=Confirmed%20OK\" ' +\n  'style=\"display:inline-block;padding:10px 20px;background:#28a745;color:white;text-decoration:none;border-radius:4px;margin-right:8px;font-weight:bold;\">Confirmed OK</a>' +\n  '<a href=\"' + reviewWebhookUrl + '?executionId=' + encodeURIComponent(executionId) + '&disposition=Corrected\" ' +\n  'style=\"display:inline-block;padding:10px 20px;background:#ffc107;color:#333;text-decoration:none;border-radius:4px;margin-right:8px;font-weight:bold;\">Corrected</a>' +\n  '<a href=\"' + reviewWebhookUrl + '?executionId=' + encodeURIComponent(executionId) + '&disposition=Escalated\" ' +\n  'style=\"display:inline-block;padding:10px 20px;background:#dc3545;color:white;text-decoration:none;border-radius:4px;font-weight:bold;\">Escalated</a>' +\n  '</div>';\n\nvar emailBody = '<div style=\"font-family:Arial,sans-serif;max-width:800px;margin:0 auto;\">' +\n  '<div style=\"background:' + severityColor + ';color:white;padding:16px;border-radius:8px 8px 0 0;\">' +\n  '<h2 style=\"margin:0;\">AI Validation Review Required</h2>' +\n  '<p style=\"margin:4px 0 0;\">Workflow: ' + workflowName + ' | Severity: ' + severity + '</p>' +\n  '</div>' +\n  actionButtonsHtml +\n  '<div style=\"padding:16px;border:1px solid #ddd;border-top:none;\">' +\n  '<table style=\"width:100%;border-collapse:collapse;margin-bottom:16px;\">' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Confidence Score:</td><td style=\"padding:8px;\">' + score + ' / ' + threshold + ' threshold</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Assessment:</td><td style=\"padding:8px;\">' + item.overallAssessment + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Task Type:</td><td style=\"padding:8px;\">' + item.aiTaskType + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">AI Model:</td><td style=\"padding:8px;\">' + item.aiModel + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Execution ID:</td><td style=\"padding:8px;\">' + executionId + '</td></tr>' +\n  '</table>' +\n  '<h3>Reasoning</h3>' +\n  '<p>' + item.reasoning + '</p>' +\n  (flaggedIssues.length > 0 ?\n    '<h3>Flagged Issues (' + flaggedIssues.length + ')</h3>' +\n    '<table style=\"width:100%;border-collapse:collapse;\">' +\n    '<tr style=\"background:#f5f5f5;\"><th style=\"padding:8px;border:1px solid #ddd;\">#</th><th style=\"padding:8px;border:1px solid #ddd;\">Severity</th><th style=\"padding:8px;border:1px solid #ddd;\">Issue</th><th style=\"padding:8px;border:1px solid #ddd;\">Recommendation</th></tr>' +\n    issuesHtml +\n    '</table>' : '') +\n  (citations.length > 0 ?\n    '<h3>Source Citations (showing ' + citations.length + ')</h3>' +\n    '<table style=\"width:100%;border-collapse:collapse;\">' +\n    '<tr style=\"background:#f5f5f5;\"><th style=\"padding:8px;border:1px solid #ddd;\">Claim</th><th style=\"padding:8px;border:1px solid #ddd;\">Source</th><th style=\"padding:8px;border:1px solid #ddd;\">Status</th></tr>' +\n    citationsHtml +\n    '</table>' : '') +\n  '<h3>Full Execution Details</h3>' +\n  '<p>View the complete AI output and validation details in the n8n execution log:</p>' +\n  '<a href=\"' + executionLink + '\" style=\"display:inline-block;padding:10px 20px;background:#1a73e8;color:white;text-decoration:none;border-radius:4px;font-weight:bold;\">View Execution Log</a>' +\n  '<p style=\"font-size:12px;color:#666;margin-top:8px;\">Accessible only to authorized n8n users.</p>' +\n  '</div></div>';\n\nvar emailSubject = '[AI REVIEW ' + severity + '] ' + workflowName + ' - Score ' + score + '/' + threshold;\n\nreturn [{\n  json: {\n    workflowName: item.workflowName,\n    aiTaskType: item.aiTaskType,\n    originalInput: item.originalInput,\n    aiOutput: item.aiOutput,\n    aiModel: item.aiModel,\n    domainContext: item.domainContext,\n    strictnessThreshold: item.strictnessThreshold,\n    notifyEmail: item.notifyEmail,\n    confidenceScore: item.confidenceScore,\n    overallAssessment: item.overallAssessment,\n    flaggedIssues: item.flaggedIssues,\n    sourceCitations: item.sourceCitations,\n    reasoning: item.reasoning,\n    unsourcedClaimCount: item.unsourcedClaimCount,\n    totalClaimsChecked: item.totalClaimsChecked,\n    passed: item.passed,\n    needsHumanReview: item.needsHumanReview,\n    reviewLevel: item.reviewLevel,\n    decisionSummary: item.decisionSummary,\n    highSeverityCount: item.highSeverityCount,\n    validationTimestamp: item.validationTimestamp,\n    emailBody: emailBody,\n    emailSubject: emailSubject,\n    executionId: executionId\n  }\n}];"
+        "jsCode": "// Pull from Apply Strictness Threshold - Write Audit Log (Google Sheets) strips\n// the data down to 14 flat columns, losing arrays like flaggedIssues and sourceCitations.\nconst item = $('Apply Strictness Threshold1').first().json;\n\nvar n8nBaseUrl = 'https://simpledotbiz.app.n8n.cloud';\nvar reviewWebhookUrl = n8nBaseUrl + '/webhook/review-response';\nvar subWorkflowId = '6duP007x1yFIH99y';\n\nvar score = item.confidenceScore;\nvar threshold = item.strictnessThreshold;\nvar severity = item.reviewLevel;\nvar workflowName = item.workflowName;\nvar flaggedIssues = item.flaggedIssues || [];\nvar citations = (item.sourceCitations || []).slice(0, 10);\nvar executionId = $execution.id || 'N/A';\nvar executionLink = n8nBaseUrl + '/workflow/' + subWorkflowId + '/executions/' + executionId;\n\nvar issuesHtml = '';\nfor (var i = 0; i < flaggedIssues.length; i++) {\n  var issue = flaggedIssues[i];\n  var color = issue.severity === 'HIGH' ? '#dc3545' : (issue.severity === 'MEDIUM' ? '#ffc107' : '#28a745');\n  issuesHtml += '<tr>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + (i + 1) + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\"><span style=\"color:' + color + ';font-weight:bold;\">' + issue.severity + '</span></td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + issue.issue + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + issue.recommendation + '</td>' +\n    '</tr>';\n}\n\nvar citationsHtml = '';\nfor (var j = 0; j < citations.length; j++) {\n  var c = citations[j];\n  var statusColor = c.status === 'VERIFIED' ? '#28a745' : (c.status === 'PLAUSIBLE' ? '#ffc107' : '#dc3545');\n  citationsHtml += '<tr>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + c.claim + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\">' + c.source + '</td>' +\n    '<td style=\"padding:8px;border:1px solid #ddd;\"><span style=\"color:' + statusColor + ';font-weight:bold;\">' + c.status + '</span></td>' +\n    '</tr>';\n}\n\nvar severityColor = severity === 'CRITICAL' ? '#dc3545' : (severity === 'HIGH' ? '#ff6b35' : '#ffc107');\n\n// Single review button\nvar actionButtonsHtml = '<div style=\"padding:16px;background:#f0f4ff;border:1px solid #ddd;border-top:none;text-align:center;\">' +\n  '<a href=\"' + reviewWebhookUrl + '?executionId=' + encodeURIComponent(executionId) + '\" ' +\n  'style=\"display:inline-block;padding:12px 32px;background:#1a73e8;color:white;text-decoration:none;border-radius:4px;font-weight:bold;font-size:16px;\">Review Now</a>' +\n  '</div>';\n\nvar emailBody = '<div style=\"font-family:Arial,sans-serif;max-width:800px;margin:0 auto;\">' +\n  '<div style=\"background:' + severityColor + ';color:white;padding:16px;border-radius:8px 8px 0 0;\">' +\n  '<h2 style=\"margin:0;\">AI Validation Review Required</h2>' +\n  '<p style=\"margin:4px 0 0;\">Workflow: ' + workflowName + ' | Severity: ' + severity + '</p>' +\n  '</div>' +\n  actionButtonsHtml +\n  '<div style=\"padding:16px;border:1px solid #ddd;border-top:none;\">' +\n  '<table style=\"width:100%;border-collapse:collapse;margin-bottom:16px;\">' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Confidence Score:</td><td style=\"padding:8px;\">' + score + ' / ' + threshold + ' threshold</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Assessment:</td><td style=\"padding:8px;\">' + item.overallAssessment + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Task Type:</td><td style=\"padding:8px;\">' + item.aiTaskType + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">AI Model:</td><td style=\"padding:8px;\">' + item.aiModel + '</td></tr>' +\n  '<tr><td style=\"padding:8px;font-weight:bold;\">Execution ID:</td><td style=\"padding:8px;\">' + executionId + '</td></tr>' +\n  '</table>' +\n  '<h3>Reasoning</h3>' +\n  '<p>' + item.reasoning + '</p>' +\n  (flaggedIssues.length > 0 ?\n    '<h3>Flagged Issues (' + flaggedIssues.length + ')</h3>' +\n    '<table style=\"width:100%;border-collapse:collapse;\">' +\n    '<tr style=\"background:#f5f5f5;\"><th style=\"padding:8px;border:1px solid #ddd;\">#</th><th style=\"padding:8px;border:1px solid #ddd;\">Severity</th><th style=\"padding:8px;border:1px solid #ddd;\">Issue</th><th style=\"padding:8px;border:1px solid #ddd;\">Recommendation</th></tr>' +\n    issuesHtml +\n    '</table>' : '') +\n  (citations.length > 0 ?\n    '<h3>Source Citations (showing ' + citations.length + ')</h3>' +\n    '<table style=\"width:100%;border-collapse:collapse;\">' +\n    '<tr style=\"background:#f5f5f5;\"><th style=\"padding:8px;border:1px solid #ddd;\">Claim</th><th style=\"padding:8px;border:1px solid #ddd;\">Source</th><th style=\"padding:8px;border:1px solid #ddd;\">Status</th></tr>' +\n    citationsHtml +\n    '</table>' : '') +\n  '<h3>Full Execution Details</h3>' +\n  '<p>View the complete AI output and validation details in the n8n execution log:</p>' +\n  '<a href=\"' + executionLink + '\" style=\"display:inline-block;padding:10px 20px;background:#1a73e8;color:white;text-decoration:none;border-radius:4px;font-weight:bold;\">View Execution Log</a>' +\n  '<p style=\"font-size:12px;color:#666;margin-top:8px;\">Accessible only to authorized n8n users.</p>' +\n  '</div></div>';\n\nvar emailSubject = '[AI REVIEW ' + severity + '] ' + workflowName + ' - Score ' + score + '/' + threshold;\n\nreturn [{\n  json: {\n    workflowName: item.workflowName,\n    aiTaskType: item.aiTaskType,\n    originalInput: item.originalInput,\n    aiOutput: item.aiOutput,\n    aiModel: item.aiModel,\n    domainContext: item.domainContext,\n    strictnessThreshold: item.strictnessThreshold,\n    notifyEmail: item.notifyEmail,\n    confidenceScore: item.confidenceScore,\n    overallAssessment: item.overallAssessment,\n    flaggedIssues: item.flaggedIssues,\n    sourceCitations: item.sourceCitations,\n    reasoning: item.reasoning,\n    unsourcedClaimCount: item.unsourcedClaimCount,\n    totalClaimsChecked: item.totalClaimsChecked,\n    passed: item.passed,\n    needsHumanReview: item.needsHumanReview,\n    reviewLevel: item.reviewLevel,\n    decisionSummary: item.decisionSummary,\n    highSeverityCount: item.highSeverityCount,\n    validationTimestamp: item.validationTimestamp,\n    emailBody: emailBody,\n    emailSubject: emailSubject,\n    executionId: executionId\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        368,
-        16
+        320,
+        224
       ],
-      "id": "49474c4e-f675-4b10-871d-0a4d62c21d35",
-      "name": "Format Review Alert"
+      "id": "403dd731-59dd-47f1-b5e7-573a7c8b7ba0",
+      "name": "Format Review Alert1"
     },
     {
       "parameters": {
@@ -349,11 +351,11 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        608,
-        16
+        544,
+        224
       ],
-      "id": "661f9f7b-c3d5-4e68-96b6-db9fc5f0386b",
-      "name": "Send Review Email",
+      "id": "863c0c3f-c606-4632-a036-579cd1d96e54",
+      "name": "Send Review Email1",
       "webhookId": "3df3d7bb-9f47-46c9-bc5f-512e65fa4f94",
       "credentials": {
         "gmailOAuth2": {
@@ -364,16 +366,16 @@
     },
     {
       "parameters": {
-        "jsCode": "// Reference Apply Strictness Threshold directly - this has all validation data\n// regardless of whether we came via the email branch (TRUE) or skipped it (FALSE).\n// The Gmail node output replaces input data with API metadata, so $input is unreliable here.\nconst item = $('Apply Strictness Threshold').first().json;\n\nreturn [{\n  json: {\n    passed: item.passed,\n    needsHumanReview: item.needsHumanReview,\n    confidenceScore: item.confidenceScore,\n    overallAssessment: item.overallAssessment,\n    reviewLevel: item.reviewLevel,\n    decisionSummary: item.decisionSummary,\n    reasoning: item.reasoning,\n    flaggedIssues: item.flaggedIssues,\n    sourceCitations: item.sourceCitations,\n    unsourcedClaimCount: item.unsourcedClaimCount,\n    totalClaimsChecked: item.totalClaimsChecked,\n    validationTimestamp: item.validationTimestamp,\n    strictnessThreshold: item.strictnessThreshold,\n    workflowName: item.workflowName,\n    originalAiOutput: item.aiOutput\n  }\n}];"
+        "jsCode": "// Reference Apply Strictness Threshold directly - this has all validation data\n// regardless of whether we came via the email branch (TRUE) or skipped it (FALSE).\n// The Gmail node output replaces input data with API metadata, so $input is unreliable here.\nconst item = $('Apply Strictness Threshold1').first().json;\n\nreturn [{\n  json: {\n    passed: item.passed,\n    needsHumanReview: item.needsHumanReview,\n    confidenceScore: item.confidenceScore,\n    overallAssessment: item.overallAssessment,\n    reviewLevel: item.reviewLevel,\n    decisionSummary: item.decisionSummary,\n    reasoning: item.reasoning,\n    flaggedIssues: item.flaggedIssues,\n    sourceCitations: item.sourceCitations,\n    unsourcedClaimCount: item.unsourcedClaimCount,\n    totalClaimsChecked: item.totalClaimsChecked,\n    validationTimestamp: item.validationTimestamp,\n    strictnessThreshold: item.strictnessThreshold,\n    workflowName: item.workflowName,\n    originalAiOutput: item.aiOutput\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        848,
-        208
+        768,
+        296
       ],
-      "id": "bc390b41-6ab8-4848-a199-d9800bbcba6a",
-      "name": "Return Results"
+      "id": "ec54b50e-1e54-471a-a1e9-37bd99142109",
+      "name": "Return Results1"
     }
   ],
   "connections": {
@@ -381,124 +383,124 @@
       "main": [
         [
           {
-            "node": "Prepare Validation Context",
+            "node": "Prepare Validation Context1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Prepare Validation Context": {
+    "Prepare Validation Context1": {
       "main": [
         [
           {
-            "node": "Build Validation Prompt",
+            "node": "Build Validation Prompt1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Build Validation Prompt": {
+    "Build Validation Prompt1": {
       "main": [
         [
           {
-            "node": "Run Validation",
+            "node": "Run Validation1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "OpenAI Chat Model": {
+    "OpenAI Chat Model1": {
       "ai_languageModel": [
         [
           {
-            "node": "Run Validation",
+            "node": "Run Validation1",
             "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "Run Validation": {
+    "Run Validation1": {
       "main": [
         [
           {
-            "node": "Parse Validation Result",
+            "node": "Parse Validation Result1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Parse Validation Result": {
+    "Parse Validation Result1": {
       "main": [
         [
           {
-            "node": "Apply Strictness Threshold",
+            "node": "Apply Strictness Threshold1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Apply Strictness Threshold": {
+    "Apply Strictness Threshold1": {
       "main": [
         [
           {
-            "node": "Write Audit Log",
+            "node": "Write Audit Log1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Write Audit Log": {
+    "Write Audit Log1": {
       "main": [
         [
           {
-            "node": "Route Decision",
+            "node": "Route Decision1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Route Decision": {
+    "Route Decision1": {
       "main": [
         [
           {
-            "node": "Format Review Alert",
+            "node": "Format Review Alert1",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Return Results",
+            "node": "Return Results1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Format Review Alert": {
+    "Format Review Alert1": {
       "main": [
         [
           {
-            "node": "Send Review Email",
+            "node": "Send Review Email1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send Review Email": {
+    "Send Review Email1": {
       "main": [
         [
           {
-            "node": "Return Results",
+            "node": "Return Results1",
             "type": "main",
             "index": 0
           }
@@ -506,30 +508,7 @@
       ]
     }
   },
-  "pinData": {
-    "Sub-Workflow Trigger": [
-      {
-        "workflowName": "Test Validation - FAIL",
-        "aiTaskType": "GENERATION",
-        "originalInput": "What is SSDI back pay and how does it work in Arkansas?",
-        "aiOutput": "SSDI back pay is the compensation owed for the period between your application date and approval. In Arkansas, this follows federal guidelines. Back pay can be issued as a lump sum. The average SSDI back pay amount in Arkansas is $12,000 and most cases are resolved within 90 days.",
-        "aiModel": "gpt-4.1-mini",
-        "domainContext": "disability law",
-        "strictnessThreshold": 80,
-        "notifyEmail": "francor@simple.biz"
-      },
-      {
-        "workflowName": "Test Validation - PASS",
-        "aiTaskType": "EVALUATION",
-        "originalInput": "Speaker 0: Thank you for calling Hogan Smith Law, how can I help you today? Speaker 1: Yeah I need to speak with Dan Smith right now. I've been waiting three weeks for a callback and nobody has gotten back to me about my case. This is ridiculous. Speaker 0: I understand your frustration, let me see if I can get someone to help you. Speaker 1: You better, because I'm about to find another lawyer.",
-        "aiOutput": "TRUE",
-        "aiModel": "claude-haiku-4-5",
-        "domainContext": "call center evaluation",
-        "strictnessThreshold": 85,
-        "notifyEmail": "francor@simple.biz"
-      }
-    ]
-  },
+  "pinData": {},
   "meta": {
     "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
   }
