@@ -99,22 +99,72 @@ needsHumanReview = NOT passed
 
 If the validator's confidence score meets or exceeds the threshold, the output passes. If it falls below, it gets flagged for human review.
 
-### Override: HIGH-Severity Issues
+### Override 1: HIGH-Severity Issues
 
 ```
 If ANY flagged issue has severity = "HIGH" → needsHumanReview = true
 ```
 
-**This override is absolute.** Even if the confidence score is 95 out of a threshold of 80, a single HIGH-severity issue forces human review. This ensures things like hallucinated attorney names or false legal claims always get a human look.
+Even if the confidence score is 95 out of a threshold of 80, a single HIGH-severity issue forces human review. This ensures things like hallucinated attorney names or false legal claims always get a human look.
 
-### Combined Logic
+### Override 2: AI Assessment
 
-| Confidence Score | HIGH-Severity Issues | Result |
+```
+If overallAssessment = "REVIEW_NEEDED" or "FAIL" → needsHumanReview = true
+```
+
+The AI validator's own judgment now directly influences the email decision. If the AI says something is wrong, the email goes out — even if the score is above threshold and there are zero HIGH-severity issues. This connects the AI's opinion to the actual notification system.
+
+### Combined Logic — 3 Triggers
+
+An email is sent if **ANY** of these are true:
+
+| # | Trigger | Example |
 |---|---|---|
-| >= threshold | 0 | **PASSED** — no review needed |
-| >= threshold | 1+ | **FLAGGED** — HIGH issue override |
-| < threshold | 0 | **FLAGGED** — score too low |
-| < threshold | 1+ | **FLAGGED** — both triggers |
+| 1 | Score below threshold | Score 60, threshold 80 |
+| 2 | Any HIGH-severity issue | Score 95, but 1 HIGH issue found |
+| 3 | AI says REVIEW_NEEDED or FAIL | Score 95, 0 HIGH issues, but AI says REVIEW_NEEDED |
+
+No email is sent **only when ALL** of these are true:
+- Score >= threshold
+- Zero HIGH-severity issues
+- AI says PASS
+
+### All Possible Scenarios
+
+| Score vs Threshold | HIGH Issues | AI Assessment | Email? | Why |
+|---|---|---|---|---|
+| >= threshold | 0 | PASS | **NO** | All clear — only case with no email |
+| >= threshold | 0 | REVIEW_NEEDED | **YES** | Trigger 3: AI flagged a concern |
+| >= threshold | 0 | FAIL | **YES** | Trigger 3: AI says it's bad |
+| >= threshold | 1+ | PASS | **YES** | Trigger 2: HIGH issue override |
+| >= threshold | 1+ | REVIEW_NEEDED | **YES** | Triggers 2 + 3 |
+| >= threshold | 1+ | FAIL | **YES** | Triggers 2 + 3 |
+| < threshold | 0 | PASS | **YES** | Trigger 1: score too low |
+| < threshold | 0 | REVIEW_NEEDED | **YES** | Triggers 1 + 3 |
+| < threshold | 0 | FAIL | **YES** | Triggers 1 + 3 |
+| < threshold | 1+ | PASS | **YES** | Triggers 1 + 2 |
+| < threshold | 1+ | REVIEW_NEEDED | **YES** | Triggers 1 + 2 + 3 |
+| < threshold | 1+ | FAIL | **YES** | All 3 triggers fire |
+
+### Real-World Example
+
+From a live execution on March 5, 2026 (Call Transcribe workflow):
+
+```
+Confidence Score:    95
+Strictness Threshold: 80
+Overall Assessment:  FAIL
+HIGH Issues:         1 (false positive — calm call flagged TRUE)
+Passed:              TRUE (95 >= 80)
+
+Trigger 1: Score >= threshold → no
+Trigger 2: HIGH issue count > 0 → YES → email sent
+Trigger 3: AI said FAIL → YES → email sent
+
+Result: Email sent. Franco reviewed, escalated.
+Audit trail complete.
+```
 
 ---
 
@@ -190,16 +240,28 @@ The `strictnessThreshold` parameter (0-100) is set per workflow in the parent's 
 
 ## 8. Test Harness Scenarios
 
-The test harness runs 6 scenarios to verify the decision logic works correctly:
+The test harness runs 9 scenarios (6 regular + 3 bug) to verify the decision logic and error handling:
+
+### Regular Validation Tests
 
 | # | Scenario | Type | Expected | Why |
 |---|---|---|---|---|
-| 1 | Clean KOBE content, all facts traceable to input | GENERATION | PASS | Score should be high, no HIGH issues |
+| 1 | Clean KOBE content, all facts traceable to input | GENERATION | PASS | Score should be high, no HIGH issues, AI says PASS |
 | 2 | Hallucinated stats ($12K average), fake attorney (John Williams), fake law (Section 14-7) | GENERATION | FLAG | Unsourced claims trigger HIGH issues |
 | 3 | Correctly flagged upset caller + Dan Smith mention as TRUE | EVALUATION | PASS | Validator confirms TRUE was the right call |
 | 4 | Calm routine call (Sarah Johnson status check) wrongly flagged as TRUE | EVALUATION | FLAG | False positive detected — no upset caller, no Dan Smith |
 | 5 | Veo3 prompt follows all custom rules (third person, no banned words, short script) | CUSTOM | PASS | No rule violations found |
 | 6 | Veo3 prompt uses "we" and "defense", has logo on shirt, script is 40+ words | CUSTOM | FLAG | Multiple custom rule violations |
+
+### Bug / Edge Case Tests
+
+These verify the sub-workflow handles bad input gracefully (no crash). Results are also written to the Retry Queue sheet tab.
+
+| # | Scenario | What's buggy | Expected |
+|---|---|---|---|
+| 7 | Garbled AI output (corrupted generation) | aiOutput is system error text with buffer overflow garbage | Sub-workflow completes without crashing |
+| 8 | Invalid task type | aiTaskType is "BANANA" | Falls through to general validation without crashing |
+| 9 | Wrong domain context | domainContext says "cooking recipes" but content is disability law | Validator catches the mismatch |
 
 ---
 
