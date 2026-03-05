@@ -36,9 +36,10 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "Retry Queue",
+          "value": 1383436532,
           "mode": "list",
-          "cachedResultName": "Retry Queue"
+          "cachedResultName": "Retry Queue",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit#gid=1383436532"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -50,7 +51,7 @@
             "Retry Count": "={{ $json.retryCount }}",
             "Last Retry": "={{ $json.lastRetry }}",
             "Error Message": "={{ $json.errorMessage }}",
-            "workflowName": "={{ $json.paramWorkflowName }}",
+            "workflowName": "={{ $json.workflowName }}",
             "aiTaskType": "={{ $json.paramAiTaskType }}",
             "originalInput": "={{ $json.paramOriginalInput }}",
             "aiOutput": "={{ $json.paramAiOutput }}",
@@ -79,6 +80,16 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resolved Execution ID",
+              "displayName": "Resolved Execution ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
             },
             {
               "id": "Workflow Name",
@@ -248,8 +259,7 @@
           "id": "qM7dhKTVMgRpFpv9",
           "name": "Kayser Gmail"
         }
-      },
-      "disabled": true
+      }
     },
     {
       "parameters": {
@@ -265,8 +275,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        1408,
-        464
+        1504,
+        496
       ],
       "id": "ad7387c7-9bda-46d4-ba18-b1e3ad1c95e1",
       "name": "Every 30 Minutes",
@@ -653,17 +663,6 @@
       }
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        1216,
-        640
-      ],
-      "id": "3d0bc8d8-b60f-4dea-945b-04d56de8c9a3",
-      "name": "When clicking ‘Execute workflow’"
-    },
-    {
       "parameters": {
         "conditions": {
           "options": {
@@ -695,6 +694,17 @@
       ],
       "id": "fcd526b5-1d24-42d8-876a-be22db6c2c1e",
       "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        576
+      ],
+      "id": "3d0bc8d8-b60f-4dea-945b-04d56de8c9a3",
+      "name": "When clicking ‘Execute workflow’"
     }
   ],
   "connections": {
@@ -733,7 +743,13 @@
     },
     "Every 30 Minutes": {
       "main": [
-        []
+        [
+          {
+            "node": "Read Retry Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Send Escalation Email": {
@@ -832,17 +848,6 @@
         ]
       ]
     },
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Read Retry Queue",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "If": {
       "main": [
         [
@@ -855,7 +860,48 @@
       ]
     }
   },
-  "pinData": {},
+  "pinData": {
+    "Error Trigger": [
+      {
+        "execution": {
+          "id": "test-exec-001",
+          "error": {
+            "message": "Simulated API timeout on Run Validation node"
+          },
+          "lastNodeExecuted": "Run Validation1",
+          "data": {
+            "resultData": {
+              "runData": {
+                "Sub-Workflow Trigger": [
+                  {
+                    "data": {
+                      "main": [
+                        [
+                          {
+                            "json": {
+                              "workflowName": "KOBE - Hogan Smith Automation",
+                              "aiTaskType": "GENERATION",
+                              "originalInput": "What is SSDI back pay?",
+                              "aiOutput": "SSDI back pay is the money owed to you.",
+                              "aiModel": "gpt-4.1-mini",
+                              "domainContext": "disability law",
+                              "strictnessThreshold": 80,
+                              "notifyEmail": "francor@simple.biz",
+                              "customValidationInstructions": ""
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
   "meta": {
     "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
   }
