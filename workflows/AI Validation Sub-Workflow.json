@@ -7,10 +7,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -2416,
-        176
+        -2896,
+        272
       ],
-      "id": "2171eb5c-2c12-4812-bdaa-4f221825eb4a",
+      "id": "b02464c8-f42d-4fcb-a0e4-4a337ac3d853",
       "name": "Sub-Workflow Trigger"
     },
     {
@@ -20,10 +20,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2192,
-        176
+        -2672,
+        272
       ],
-      "id": "07f611c3-86b5-40c7-bccc-013f4d7299ce",
+      "id": "3cc541a2-cf5e-4f6a-a32a-a849f3e012df",
       "name": "Prepare Validation Context1"
     },
     {
@@ -33,10 +33,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1968,
-        176
+        -2448,
+        272
       ],
-      "id": "84135cab-af88-420d-a39e-9a7f373d61a6",
+      "id": "42ed39c4-c737-47b7-9805-7d15cac0d512",
       "name": "Build Validation Prompt1"
     },
     {
@@ -55,10 +55,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        -1664,
-        400
+        -2144,
+        496
       ],
-      "id": "9b7bea82-22ff-467a-8851-ce615cee1b74",
+      "id": "68637aa9-23a3-47b7-a1a4-05edf7d7c4a4",
       "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
@@ -76,10 +76,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        -1744,
-        176
+        -2224,
+        272
       ],
-      "id": "a0f7481a-49d1-4265-80cc-4ad2eeae7275",
+      "id": "85526d4f-243b-497e-a8e0-466176602481",
       "name": "Run Validation1",
       "retryOnFail": true,
       "waitBetweenTries": 5000
@@ -91,10 +91,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1392,
-        176
+        -1872,
+        272
       ],
-      "id": "f2fd312b-e04f-41b9-aecc-f890932d5099",
+      "id": "23d19699-e1bc-4377-a1dd-909aac721427",
       "name": "Parse Validation Result1"
     },
     {
@@ -104,10 +104,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1168,
-        176
+        -1648,
+        272
       ],
-      "id": "baa5d6ce-c060-48a9-b1b9-ef4ed812de66",
+      "id": "6725db88-d65b-45cd-a5ca-400a0c5be0e3",
       "name": "Apply Strictness Threshold1"
     },
     {
@@ -320,10 +320,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -944,
-        176
+        -1424,
+        272
       ],
-      "id": "8842f95f-4193-4e52-b6da-4e829fb5a889",
+      "id": "32fbcfcb-dc0a-4c71-bd83-c5bbc3637136",
       "name": "Write Audit Log1",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -360,10 +360,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -720,
-        176
+        -1200,
+        272
       ],
-      "id": "a8287dbe-e3e4-4cd2-9b0e-c29bfbb0659c",
+      "id": "6f3eb6ee-4fb6-4976-b7a5-21f9e2f9183b",
       "name": "Route Decision1"
     },
     {
@@ -373,10 +373,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -496,
-        96
+        -976,
+        192
       ],
-      "id": "da272fa4-1dc4-47cd-b153-477bfbf1b61e",
+      "id": "f1fecfde-0ca6-42ec-9f8f-f81368306498",
       "name": "Format Review Alert1"
     },
     {
@@ -389,10 +389,10 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        -272,
-        96
+        -752,
+        192
       ],
-      "id": "84f79c04-a879-4eca-a9a3-dda9096e3aa4",
+      "id": "1148d907-ed93-47ba-80f3-f5878b89815a",
       "name": "Send Review Email1",
       "webhookId": "3df3d7bb-9f47-46c9-bc5f-512e65fa4f94",
       "credentials": {
@@ -409,10 +409,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -48,
-        176
+        -528,
+        272
       ],
-      "id": "51bd538c-b6d0-4104-82c8-9d4db5f35894",
+      "id": "301f70c2-945b-4fd1-a816-da6c9d16093b",
       "name": "Return Results1"
     }
   ],
