@@ -5,10 +5,10 @@
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
       "position": [
-        1456,
-        96
+        -96,
+        -32
       ],
-      "id": "afe549d3-ad1c-47a9-bdd8-a2e1aa3ecf61",
+      "id": "94060970-b54c-46a0-8d6b-50c085bfcbd9",
       "name": "Error Trigger"
     },
     {
@@ -18,10 +18,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1680,
-        96
+        128,
+        -32
       ],
-      "id": "d269b98c-eaa0-4df0-bf3a-fbb604809893",
+      "id": "3a2cb71a-82f9-434a-a0d2-da1edcd2d3f5",
       "name": "Extract Error Context"
     },
     {
@@ -226,15 +226,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1904,
-        96
+        352,
+        -32
       ],
-      "id": "5b889be7-65f3-4090-ada3-96b365318e3e",
+      "id": "6258413c-cd47-4c6c-8f03-5af7fe7b58de",
       "name": "Log to Retry Queue",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "SKCeMwlrPG6pXvK7",
-          "name": "Google Sheets Kayser"
+          "id": "MXcAeGi5ODpBd7T3",
+          "name": "Google Sheets - kayserb@simple.biz"
         }
       }
     },
@@ -248,16 +248,16 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        2128,
-        96
+        576,
+        -32
       ],
-      "id": "78118ec0-6e75-446a-bb7a-5f4089a043db",
+      "id": "224ea68c-e1b4-4a94-9116-7fa46b385b93",
       "name": "Send Failure Alert",
       "webhookId": "9be85505-86ea-4fe3-9d6d-19d1e5a26615",
       "credentials": {
         "gmailOAuth2": {
-          "id": "qM7dhKTVMgRpFpv9",
-          "name": "Kayser Gmail"
+          "id": "gQ0RSNgfrSTohfw5",
+          "name": "Gmail - kayserb@simple.biz"
         }
       }
     },
@@ -275,10 +275,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        1456,
-        352
+        -96,
+        224
       ],
-      "id": "ad7387c7-9bda-46d4-ba18-b1e3ad1c95e1",
+      "id": "5c2696d0-01b7-4568-b39a-2bfca276e6cd",
       "name": "Every 30 Minutes",
       "disabled": true
     },
@@ -292,16 +292,16 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        3472,
-        400
+        1920,
+        272
       ],
-      "id": "42d71cbf-94e1-4833-8dad-68d75de3302d",
+      "id": "67720729-94fe-45b1-aa2f-b8c7e2ee21ce",
       "name": "Send Escalation Email",
       "webhookId": "7196d6b9-afed-4d5d-b47a-28f60d4b46b7",
       "credentials": {
         "gmailOAuth2": {
-          "id": "qM7dhKTVMgRpFpv9",
-          "name": "Kayser Gmail"
+          "id": "gQ0RSNgfrSTohfw5",
+          "name": "Gmail - kayserb@simple.biz"
         }
       }
     },
@@ -333,10 +333,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        3248,
-        320
+        1696,
+        192
       ],
-      "id": "be4cf8d4-7210-48d0-adb8-187d64d908eb",
+      "id": "9b7fc405-bf54-47b2-bd88-d4e14f7631c1",
       "name": "Needs Escalation?"
     },
     {
@@ -559,15 +559,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        3024,
-        320
+        1472,
+        192
       ],
-      "id": "71a82c6e-52aa-4223-9a2b-4f4bfa6feeda",
+      "id": "8bace6e4-db04-4b24-80a8-3b3f801f0b45",
       "name": "Update Queue Status",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "SKCeMwlrPG6pXvK7",
-          "name": "Google Sheets Kayser"
+          "id": "MXcAeGi5ODpBd7T3",
+          "name": "Google Sheets - kayserb@simple.biz"
         }
       }
     },
@@ -578,19 +578,20 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2800,
-        320
+        1248,
+        192
       ],
-      "id": "c6cf6c50-d450-4ff3-b1bd-3cf09a1539fa",
+      "id": "7c5287ea-398e-4e0a-83cb-23c6a321c23a",
       "name": "Check Retry Result"
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
+          "value": "rMYXnpdn8rqX53vgYk0R-",
           "mode": "list",
-          "value": "6duP007x1yFIH99y",
-          "cachedResultName": "AI Validation Sub-Workflow"
+          "cachedResultUrl": "/workflow/rMYXnpdn8rqX53vgYk0R-",
+          "cachedResultName": "AI Confidence Checker Subworkflow"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -605,10 +606,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2576,
-        320
+        1024,
+        192
       ],
-      "id": "7ad517c9-4de0-4c19-89af-56cf3d962d6e",
+      "id": "14a837d4-8611-4942-b46f-efd22bd18f8e",
       "name": "Retry Sub-Workflow",
       "continueOnFail": true
     },
@@ -619,10 +620,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        2352,
-        464
+        800,
+        336
       ],
-      "id": "5f967cc9-c9bb-43cb-ac7e-f4ce0fce1798",
+      "id": "97729455-e0c8-4e39-a8d7-1466deec53f6",
       "name": "Loop Items"
     },
     {
@@ -632,10 +633,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1904,
-        464
+        352,
+        336
       ],
-      "id": "b08282c6-ada6-4375-a878-5543e27ece1f",
+      "id": "98949f33-bfe5-4b9b-a057-78ea9de74c4e",
       "name": "Filter Pending"
     },
     {
@@ -659,15 +660,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1680,
-        464
+        128,
+        336
       ],
-      "id": "d9d8373d-789b-4ca3-8d7f-98e349bf87e5",
+      "id": "b279e12b-82ab-4294-850d-ea81fec5c93a",
       "name": "Read Retry Queue",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "SKCeMwlrPG6pXvK7",
-          "name": "Google Sheets Kayser"
+          "id": "MXcAeGi5ODpBd7T3",
+          "name": "Google Sheets - kayserb@simple.biz"
         }
       }
     },
@@ -698,10 +699,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2128,
-        464
+        576,
+        336
       ],
-      "id": "fcd526b5-1d24-42d8-876a-be22db6c2c1e",
+      "id": "e754b5d6-b2d8-44fd-b74a-b2524826b443",
       "name": "If"
     },
     {
@@ -709,10 +710,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        1456,
-        544
+        -96,
+        416
       ],
-      "id": "3d0bc8d8-b60f-4dea-945b-04d56de8c9a3",
+      "id": "137a0af0-efc2-48bf-a373-8e18cb431b75",
       "name": "When clicking ‘Execute workflow’"
     }
   ],
@@ -882,6 +883,7 @@
   },
   "pinData": {},
   "meta": {
-    "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
+    "templateCredsSetupCompleted": true,
+    "instanceId": "11d1e5febe5cccf14212f53d0231fc2668bea5400c633d6171c207137b8bdf5f"
   }
 }

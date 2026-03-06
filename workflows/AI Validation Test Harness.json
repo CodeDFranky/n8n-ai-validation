@@ -8,11 +8,11 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        5248,
-        864
+        -256,
+        -80
       ],
       "typeVersion": 1,
-      "id": "31ee5a30-e5b2-4ad1-8464-d0c3102fbef7",
+      "id": "7a0ac548-2e04-4e3d-8fec-09b1c09129a6",
       "name": "Sticky Note"
     },
     {
@@ -20,10 +20,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        5552,
-        1328
+        48,
+        384
       ],
-      "id": "b3edf1f7-0171-448a-baea-28d646203c39",
+      "id": "d7122b8a-a8eb-498d-83bf-156a1a4e4faa",
       "name": "Run Tests"
     },
     {
@@ -33,10 +33,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5776,
-        1328
+        272,
+        384
       ],
-      "id": "78fadf20-8235-4e77-94b7-66cb2aebd544",
+      "id": "7b4ea427-73af-4adc-86ab-26ebdcdbb02e",
       "name": "Load Test Cases"
     },
     {
@@ -46,20 +46,20 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        6000,
-        1328
+        496,
+        384
       ],
-      "id": "44e8a263-aa3a-4ba9-b56d-e394c2182bf1",
+      "id": "70d65280-6224-4e7b-b24a-ca7f2ce8e262",
       "name": "Loop Over Tests"
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "6duP007x1yFIH99y",
+          "value": "rMYXnpdn8rqX53vgYk0R-",
           "mode": "list",
-          "cachedResultUrl": "/workflow/6duP007x1yFIH99y",
-          "cachedResultName": "AI Validation Sub-Workflow"
+          "cachedResultUrl": "/workflow/rMYXnpdn8rqX53vgYk0R-",
+          "cachedResultName": "AI Confidence Checker Subworkflow"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -74,10 +74,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        6224,
-        1328
+        720,
+        384
       ],
-      "id": "4cab3a50-23a0-4117-87a3-f4b902bc34be",
+      "id": "b3b7242c-988a-4383-a782-70ba11130b0a",
       "name": "Run Sub-Workflow",
       "retryOnFail": true,
       "waitBetweenTries": 5000
@@ -89,10 +89,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        6448,
-        1408
+        944,
+        464
       ],
-      "id": "1011bae9-2665-482a-9867-efb4e3cdbeec",
+      "id": "0b75fc5b-12ce-47a4-8aaf-1e38c8f5261a",
       "name": "Evaluate Result"
     },
     {
@@ -102,10 +102,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        6224,
-        1136
+        720,
+        192
       ],
-      "id": "427c9768-4b40-438b-96ab-33a359746203",
+      "id": "9d28808c-3562-4d5e-8904-fec723b33e8e",
       "name": "Aggregate Results"
     },
     {
@@ -120,16 +120,16 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        6448,
-        1136
+        944,
+        192
       ],
-      "id": "2051fe7b-ed88-4567-9a58-faff8d644c8b",
+      "id": "760fe437-2b08-4a87-83ad-81dafec45856",
       "name": "Send Test Report",
       "webhookId": "9a3797dd-b966-4786-b418-83f2d8f9cac5",
       "credentials": {
         "gmailOAuth2": {
-          "id": "qM7dhKTVMgRpFpv9",
-          "name": "Kayser Gmail"
+          "id": "gQ0RSNgfrSTohfw5",
+          "name": "Gmail - kayserb@simple.biz"
         }
       }
     },
@@ -140,10 +140,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        6224,
-        944
+        720,
+        0
       ],
-      "id": "daea58ad-b94b-4e79-9e8a-4fa5f8661828",
+      "id": "2d300441-553f-476e-97ab-cd0763451e76",
       "name": "Prepare Retry Queue Entries"
     },
     {
@@ -152,12 +152,16 @@
         "documentId": {
           "__rl": true,
           "value": "1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo",
-          "mode": "id"
+          "mode": "list",
+          "cachedResultName": "n8n-ai-validation-audit-log ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
-          "value": "Retry Queue",
-          "mode": "name"
+          "value": 1383436532,
+          "mode": "list",
+          "cachedResultName": "Retry Queue",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XxE61qPZw0vDf50y4AnYbK-fOvpOxAXGdDRFkf5BYXo/edit#gid=1383436532"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -198,6 +202,16 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resolved Execution ID",
+              "displayName": "Resolved Execution ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
             },
             {
               "id": "Workflow Name",
@@ -325,22 +339,24 @@
               "type": "string",
               "canBeUsedToMatch": true
             }
-          ]
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
         },
         "options": {}
       },
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        6448,
-        944
+        944,
+        0
       ],
-      "id": "eb8fe84d-49f3-427c-9016-71eb9008ed9c",
+      "id": "330584d3-ee1b-46a3-a9a3-249ea830c982",
       "name": "Write Retry Queue Sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "SKCeMwlrPG6pXvK7",
-          "name": "Google Sheets Kayser"
+          "id": "MXcAeGi5ODpBd7T3",
+          "name": "Google Sheets - kayserb@simple.biz"
         }
       }
     }
@@ -438,6 +454,7 @@
   },
   "pinData": {},
   "meta": {
-    "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
+    "templateCredsSetupCompleted": true,
+    "instanceId": "11d1e5febe5cccf14212f53d0231fc2668bea5400c633d6171c207137b8bdf5f"
   }
 }
