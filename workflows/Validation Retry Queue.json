@@ -5,7 +5,7 @@
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
       "position": [
-        1504,
+        1456,
         96
       ],
       "id": "afe549d3-ad1c-47a9-bdd8-a2e1aa3ecf61",
@@ -18,7 +18,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1744,
+        1680,
         96
       ],
       "id": "d269b98c-eaa0-4df0-bf3a-fbb604809893",
@@ -226,7 +226,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1984,
+        1904,
         96
       ],
       "id": "5b889be7-65f3-4090-ada3-96b365318e3e",
@@ -248,7 +248,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        2224,
+        2128,
         96
       ],
       "id": "78118ec0-6e75-446a-bb7a-5f4089a043db",
@@ -275,8 +275,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        1504,
-        496
+        1456,
+        352
       ],
       "id": "ad7387c7-9bda-46d4-ba18-b1e3ad1c95e1",
       "name": "Every 30 Minutes",
@@ -292,7 +292,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        3664,
+        3472,
         400
       ],
       "id": "42d71cbf-94e1-4833-8dad-68d75de3302d",
@@ -311,7 +311,7 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "loose",
+            "typeValidation": "strict",
             "version": 2
           },
           "conditions": [
@@ -333,8 +333,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        3424,
-        496
+        3248,
+        320
       ],
       "id": "be4cf8d4-7210-48d0-adb8-187d64d908eb",
       "name": "Needs Escalation?"
@@ -559,8 +559,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        3184,
-        496
+        3024,
+        320
       ],
       "id": "71a82c6e-52aa-4223-9a2b-4f4bfa6feeda",
       "name": "Update Queue Status",
@@ -578,8 +578,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2944,
-        496
+        2800,
+        320
       ],
       "id": "c6cf6c50-d450-4ff3-b1bd-3cf09a1539fa",
       "name": "Check Retry Result"
@@ -588,16 +588,25 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
+          "mode": "list",
           "value": "6duP007x1yFIH99y",
-          "mode": "id"
+          "cachedResultName": "AI Validation Sub-Workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
         },
         "options": {}
       },
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2704,
-        496
+        2576,
+        320
       ],
       "id": "7ad517c9-4de0-4c19-89af-56cf3d962d6e",
       "name": "Retry Sub-Workflow",
@@ -610,8 +619,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        2464,
-        496
+        2352,
+        464
       ],
       "id": "5f967cc9-c9bb-43cb-ac7e-f4ce0fce1798",
       "name": "Loop Items"
@@ -623,8 +632,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1984,
-        496
+        1904,
+        464
       ],
       "id": "b08282c6-ada6-4375-a878-5543e27ece1f",
       "name": "Filter Pending"
@@ -650,8 +659,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1744,
-        496
+        1680,
+        464
       ],
       "id": "d9d8373d-789b-4ca3-8d7f-98e349bf87e5",
       "name": "Read Retry Queue",
@@ -689,8 +698,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2176,
-        496
+        2128,
+        464
       ],
       "id": "fcd526b5-1d24-42d8-876a-be22db6c2c1e",
       "name": "If"
@@ -700,8 +709,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        1296,
-        576
+        1456,
+        544
       ],
       "id": "3d0bc8d8-b60f-4dea-945b-04d56de8c9a3",
       "name": "When clicking ‘Execute workflow’"
@@ -858,50 +867,20 @@
           }
         ]
       ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read Retry Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "pinData": {
-    "Error Trigger": [
-      {
-        "execution": {
-          "id": "test-exec-001",
-          "error": {
-            "message": "Simulated API timeout on Run Validation node"
-          },
-          "lastNodeExecuted": "Run Validation1",
-          "data": {
-            "resultData": {
-              "runData": {
-                "Sub-Workflow Trigger": [
-                  {
-                    "data": {
-                      "main": [
-                        [
-                          {
-                            "json": {
-                              "workflowName": "KOBE - Hogan Smith Automation",
-                              "aiTaskType": "GENERATION",
-                              "originalInput": "What is SSDI back pay?",
-                              "aiOutput": "SSDI back pay is the money owed to you.",
-                              "aiModel": "gpt-4.1-mini",
-                              "domainContext": "disability law",
-                              "strictnessThreshold": 80,
-                              "notifyEmail": "francor@simple.biz",
-                              "customValidationInstructions": ""
-                            }
-                          }
-                        ]
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "meta": {
     "instanceId": "29d6d9e52fe21b0c535cbb7df77313210d68e6c4404865f3476a708e3c046b7f"
   }
