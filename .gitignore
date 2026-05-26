@@ -1,0 +1,10 @@
+# ── Workflow files ────────────────────────────────────────────────────────────
+# Only the core AI validation workflows are tracked.
+# All client-specific / credential-bearing workflows are ignored.
+workflows/*
+
+# Exceptions: core AI validation workflows (no credentials, no PII)
+!workflows/AI Validation Sub-Workflow.json
+!workflows/AI Validation Test Harness.json
+!workflows/Review Response Handler.json
+!workflows/Validation Retry Queue.json
